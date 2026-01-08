@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coisa Mansa - Website da Banda</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --black: #000000;
+            --black-light: #161616;
+            --accent: #D3361A;
+            --accent-light: #EEAA9E;
+            --gray: #DADADA;
+            --white: #FFFFFF;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            line-height: 1.6;
+            color: var(--black);
+            background-color: var(--white);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .btn-primary {
+            background: var(--accent);
+            color: var(--white);
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background: #b8321a;
+        }
+        
+        .btn-outline {
+            border: 2px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 22px;
+            background: transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background: var(--accent);
+            color: var(--white);
+        }
+        
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid var(--accent);
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 20px;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+        }
+        
+        .logo-text {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 32px;
+        }
+        
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+        
+        .dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--black-light);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            min-width: 150px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .dropdown-content a {
+            display: block;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--accent);
+        }
+        
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+        
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--white);
+            position: relative;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, var(--accent) 30%, var(--accent) 40%, transparent 40%);
+            opacity: 0.1;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-logo {
+            width: 120px;
+            height: 120px;
+            background: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 32px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-logo-text {
+            color: var(--accent);
+            font-weight: 700;
+            font-size: 28px;
+        }
+        
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            letter-spacing: 2px;
+        }
+        
+        .hero p {
+            font-size: 24px;
+            margin-bottom: 32px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 48px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .features {
+            background: #f8f9fa;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .feature-card {
+            background: var(--white);
+            padding: 48px 32px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        .feature-icon svg {
+            width: 32px;
+            height: 32px;
+            color: var(--white);
+        }
+        
+        .feature-card h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .feature-card p {
+            color: #666;
+        }
+        
+        .about {
+            background: var(--white);
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            align-items: center;
+        }
+        
+        .about-text h3 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        
+        .about-text p {
+            margin-bottom: 16px;
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .about-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+        }
+        
+        .concerts {
+            background: #f8f9fa;
+        }
+        
+        .concerts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .concert-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .concert-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .concert-date {
+            background: var(--accent);
+            color: var(--white);
+            padding: 16px;
+            text-align: center;
+        }
+        
+        .concert-date .day {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .concert-date .month {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .concert-content {
+            padding: 24px;
+        }
+        
+        .concert-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .concert-venue {
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        .concert-price {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        
+        .gallery {
+            background: var(--white);
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-top: 64px;
+        }
+        
+        .gallery-item {
+            aspect-ratio: 1;
+            background: var(--gray);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .merch {
+            background: var(--accent-light);
+        }
+        
+        .merch .section-title,
+        .merch .section-subtitle {
+            color: var(--black);
+        }
+        
+        .merch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 32px;
+            margin-top: 64px;
+        }
+        
+        .merch-card {
+            background: var(--white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+        
+        .merch-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .merch-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .merch-image svg {
+            width: 48px;
+            height: 48px;
+            color: #999;
+        }
+        
+        .merch-content {
+            padding: 24px;
+        }
+        
+        .merch-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .merch-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        
+        .contact {
+            background: var(--black);
+            color: var(--white);
+        }
+        
+        .contact .section-title,
+        .contact .section-subtitle {
+            color: var(--white);
+        }
+        
+        .contact-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 64px;
+            margin-top: 64px;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .contact-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .contact-icon svg {
+            width: 24px;
+            height: 24px;
+            color: var(--white);
+        }
+        
+        .contact-form {
+            background: var(--black-light);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--accent);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #444;
+            border-radius: 8px;
+            background: var(--black);
+            color: var(--white);
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        footer {
+            background: var(--black);
+            color: var(--white);
+            padding: 48px 0;
+            border-top: 1px solid var(--accent);
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+        
+        .footer-section h4 {
+            margin-bottom: 16px;
+            color: var(--accent);
+        }
+        
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+            transition: color 0.3s;
+        }
+        
+        .footer-section a:hover {
+            color: var(--accent);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+        
+        .social-links a:hover {
+            background: #b8321a;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 32px;
+            border-top: 1px solid #444;
+            color: #999;
+        }
+        
+        .mobile-menu {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .mobile-menu {
+                display: block;
+                color: var(--white);
+                font-size: 24px;
+            }
+            
+            .hero h1 {
+                font-size: 40px;
+            }
+            
+            .hero p {
+                font-size: 18px;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .contact-content {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            
+            .concerts-grid,
+            .gallery-grid,
+            .merch-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="nav">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <span class="logo-text">CM</span>
+                    </div>
+                    <span>Coisa Mansa</span>
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#sobre">Sobre</a></li>
+                    <li class="dropdown">
+                        <a href="#explore">Explore</a>
+                        <div class="dropdown-content">
+                            <a href="#agenda">Agenda</a>
+                            <a href="#galeria">Galeria</a>
+                        </div>
+                    </li>
+                    <li><a href="#merch">Merch</a></li>
+                    <li><a href="#contactos">Contactos</a></li>
+                    <li><a href="#login">Entrar</a></li>
+                </ul>
+                
+                <div class="mobile-menu">☰</div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-logo">
+                    <span class="hero-logo-text">CM</span>
+                </div>
+                <h1>COISA MANSA</h1>
+                <p>Banda de rock e fusão de Viana do Castelo, formada em 2022</p>
+                <div class="hero-buttons">
+                    <a href="#sobre" class="btn-primary">Conhecer a Banda</a>
+                    <a href="#agenda" class="btn-outline">Ver Agenda</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Explora o nosso universo</h2>
+                <p class="section-subtitle">Descobre tudo sobre a Coisa Mansa: desde os nossos concertos ao merchandising exclusivo</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"></path>
+                            </svg>
+                        </div>
+                        <h3>Agenda</h3>
+                        <p>Não percas nenhum concerto. Vê a nossa agenda completa e reserva já os teus bilhetes.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <h3>Galeria</h3>
+                        <p>Fotografias dos nossos concertos, bastidores e momentos únicos da banda.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                            </svg>
+                        </div>
+                        <h3>Merch</h3>
+                        <p>T-shirts, álbuns, posters e muito mais. Leva um pedaço da Coisa Mansa contigo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section class="about" id="sobre">
+            <div class="container">
+                <h2 class="section-title">Sobre Nós</h2>
+                <div class="about-content">
+                    <div class="about-text">
+                        <h3>A Nossa História</h3>
+                        <p>A <strong>Coisa Mansa</strong> nasceu em 2022 na vibrante cidade de Viana do Castelo, quando quatro músicos apaixonados se reuniram com uma visão comum: criar música que tocasse almas e unisse pessoas através do poder do rock e da fusão.</p>
+                        <p>O nosso nome reflete a nossa abordagem musical - uma mistura "mansa" mas poderosa de géneros, estilos e influências que vão desde o rock clássico português até elementos contemporâneos de fusão e soul.</p>
+                        <p>Com raízes profundas na cultura minhota e uma visão global, a Coisa Mansa tem-se destacado no panorama musical nacional pela sua autenticidade e energia única em palco.</p>
+                    </div>
+                    
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Formação</h4>
+                                <p>Estabelecida em 2022 em Viana do Castelo</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Origem</h4>
+                                <p>Viana do Castelo, Minho, Portugal</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.369 4.369 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Género</h4>
+                                <p>Rock, Fusão, Soul Português</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concerts Section -->
+        <section class="concerts" id="agenda">
+            <div class="container">
+                <h2 class="section-title">Agenda de Concertos</h2>
+                <p class="section-subtitle">Não percas nenhum concerto da Coisa Mansa. Marca já na tua agenda!</p>
+                
+                <div class="concerts-grid">
+                    <div class="concert-card">
+                        <div class="concert-date">
+                            <div class="day">15</div>
+                            <div class="month">JAN 2025</div>
+                        </div>
+                        <div class="concert-content">
+                            <h3 class="concert-title">Coisa Mansa ao Vivo</h3>
+                            <p class="concert-venue">Teatro Municipal Sá de Miranda<br>Viana do Castelo</p>
+                            <div class="concert-price">12.50€</div>
+                            <a href="#" class="btn-primary">Comprar Bilhete</a>
+                        </div>
+                    </div>
+                    
+                    <div class="concert-card">
+                        <div class="concert-date">
+                            <div class="day">20</div>
+                            <div class="month">FEV 2025</div>
+                        </div>
+                        <div class="concert-content">
+                            <h3 class="concert-title">Festival Rock do Minho</h3>
+                            <p class="concert-venue">Parque da Cidade<br>Braga</p>
+                            <div class="concert-price">25.00€</div>
+                            <a href="#" class="btn-primary">Comprar Bilhete</a>
+                        </div>
+                    </div>
+                    
+                    <div class="concert-card">
+                        <div class="concert-date">
+                            <div class="day">10</div>
+                            <div class="month">MAR 2025</div>
+                        </div>
+                        <div class="concert-content">
+                            <h3 class="concert-title">Noite de Fados e Rock</h3>
+                            <p class="concert-venue">Casa da Música<br>Porto</p>
+                            <div class="concert-price">18.00€</div>
+                            <a href="#" class="btn-primary">Comprar Bilhete</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Section -->
+        <section class="gallery" id="galeria">
+            <div class="container">
+                <h2 class="section-title">Galeria</h2>
+                <p class="section-subtitle">Explora os nossos momentos únicos: concertos, bastidores, sessões de estúdio e muito mais.</p>
+                
+                <div class="gallery-grid">
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Concerto ao vivo">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Sessão de estúdio">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Banda completa">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Bastidores">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1529625051353-8b7406d848b4?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Acoustic session">
+                    </div>
+                    <div class="gallery-item">
+                        <img src="https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Equipamento">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Merch Section -->
+        <section class="merch" id="merch">
+            <div class="container">
+                <h2 class="section-title">Merchandising</h2>
+                <p class="section-subtitle">Leva um pedaço da Coisa Mansa contigo. T-shirts, álbuns, posters e muito mais.</p>
+                
+                <div class="merch-grid">
+                    <div class="merch-card">
+                        <div class="merch-image">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"></path>
+                            </svg>
+                        </div>
+                        <div class="merch-content">
+                            <h3 class="merch-title">Própria Paisagem - Álbum</h3>
+                            <p>O nosso álbum de estreia com 12 faixas originais.</p>
+                            <div class="merch-price">15.00€</div>
+                            <a href="#" class="btn-primary">Adicionar ao Carrinho</a>
+                        </div>
+                    </div>
+                    
+                    <div class="merch-card">
+                        <div class="merch-image">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 2L3 7v11a2 2 0 002 2h10a2 2 0 002-2V7l-7-5zM8 15V9h4v6H8z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="merch-content">
+                            <h3 class="merch-title">T-shirt Coisa Mansa</h3>
+                            <p>T-shirt 100% algodão com logo da banda.</p>
+                            <div class="merch-price">18.00€</div>
+                            <a href="#" class="btn-primary">Adicionar ao Carrinho</a>
+                        </div>
+                    </div>
+                    
+                    <div class="merch-card">
+                        <div class="merch-image">
+                            <svg fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="merch-content">
+                            <h3 class="merch-title">Poster Concert</h3>
+                            <p>Poster oficial do concierto no Teatro Sá de Miranda.</p>
+                            <div class="merch-price">8.00€</div>
+                            <a href="#" class="btn-primary">Adicionar ao Carrinho</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="contact" id="contactos">
+            <div class="container">
+                <h2 class="section-title">Contactos</h2>
+                <p class="section-subtitle">Tens alguma pergunta, sugestão ou quer marcar um concerto? Fala connosco!</p>
+                
+                <div class="contact-content">
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Email</h4>
+                                <p>info@coisamansa.pt</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Telefone</h4>
+                                <p>+351 912 345 678</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <svg fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4>Localização</h4>
+                                <p>Viana do Castelo, Portugal</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name">Nome</label>
+                            <input type="text" id="name" name="name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Assunto</label>
+                            <input type="text" id="subject" name="subject" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Mensagem</label>
+                            <textarea id="message" name="message" rows="5" required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Enviar Mensagem</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>Coisa Mansa</h4>
+                    <p>Banda de rock e fusão de Viana do Castelo, Portugal.</p>
+                    <div class="social-links">
+                        <a href="#">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z"/>
+                            </svg>
+                        </a>
+                        <a href="#">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                        </a>
+                        <a href="#">
+                            <svg fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Navegação</h4>
+                    <a href="#sobre">Sobre</a>
+                    <a href="#agenda">Agenda</a>
+                    <a href="#galeria">Galeria</a>
+                    <a href="#merch">Merch</a>
+                    <a href="#contactos">Contactos</a>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Links Úteis</h4>
+                    <a href="#">Termos de Utilização</a>
+                    <a href="#">Política de Privacidade</a>
+                    <a href="#">Política de Cookies</a>
+                    <a href="#">Administração</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Coisa Mansa. Todos os direitos reservados.</p>
+                <p>Banda musical de Viana do Castelo • Rock • Fusão</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simple mobile menu toggle
+        document.querySelector('.mobile-menu').addEventListener('click', function() {
+            const navLinks = document.querySelector('.nav-links');
+            if (navLinks.style.display === 'flex') {
+                navLinks.style.display = 'none';
+            } else {
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '100%';
+                navLinks.style.left = '0';
+                navLinks.style.right = '0';
+                navLinks.style.background = 'rgba(0, 0, 0, 0.95)';
+                navLinks.style.padding = '20px';
+            }
+        });
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+        
+        // Form submission
+        document.querySelector('.contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Mensagem enviada com sucesso! Responderemos em breve.');
+            this.reset();
+        });
+    </script>
+</body>
+</html>

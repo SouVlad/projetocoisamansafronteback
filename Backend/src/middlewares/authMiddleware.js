@@ -9,7 +9,7 @@ export function optionalAuth(req, res, next) {
       const token = authHeader.split(' ')[1];
       const decoded = jwt.verify(token, JWT_SECRET);
       // Anexa o ID do usuário para uso posterior, se necessário
-      req.user = { id: decoded.userId, role: decoded.role, superAdmin: decoded.superAdmin };
+      req.user = { id: decoded.userId, role: decoded.role };
     } catch (error) {
       // Ignora o erro, a rota é opcional
     }
@@ -27,7 +27,7 @@ export const requireAuth = async (req, res, next) => {
 
       req.user = await prisma.user.findUnique({
         where: { id: decoded.userId },
-        select: { id: true, email: true, role: true, superAdmin: true } // Não exponha a senha
+        select: { id: true, email: true, role: true } // Não exponha a senha
       });
 
       if (!req.user) {
@@ -51,11 +51,25 @@ export function requireAdmin(req, res, next) {
     return res.status(401).json({ error: "Não autenticado." });
   }
 
-  if (req.user.superAdmin || req.user.role === "ADMIN") {
+  // ADMIN e OWNER têm permissões de admin
+  if (req.user.role === "ADMIN" || req.user.role === "OWNER") {
     return next();
   }
 
-  return res.status(403).json({ error: "Sem permissão." });
+  return res.status(403).json({ error: "Sem permissão. Apenas administradores." });
+}
+
+export function requireOwner(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: "Não autenticado." });
+  }
+
+  // Apenas OWNER tem acesso
+  if (req.user.role === "OWNER") {
+    return next();
+  }
+
+  return res.status(403).json({ error: "Sem permissão. Apenas proprietário." });
 }
 
 export function authorize(...roles) {
@@ -64,10 +78,11 @@ export function authorize(...roles) {
       return res.status(401).json({ error: "Não autenticado." });
     }
 
-    if (!roles.includes(req.user.role) && req.user.role !== 'ADMIN') { // Admin pode tudo
-      return res.status(403).json({ error: "Sem permissão." });
+    // OWNER tem acesso a tudo
+    if (req.user.role === 'OWNER' || roles.includes(req.user.role)) {
+      return next();
     }
 
-    next();
+    return res.status(403).json({ error: "Sem permissão." });
   };
 }

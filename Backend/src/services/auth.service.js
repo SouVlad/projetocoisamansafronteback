@@ -24,7 +24,7 @@ export async function registerUser(username, email, password) {
   });
 
   return {
-    user: { id: user.id, username: user.username, email: user.email, role: user.role },
+    user: { id: user.id, username: user.username, email: user.email, role: user.role, createdAt: user.createdAt },
     token: signToken(user),
     refreshToken: signRefreshToken(user),
   };
@@ -42,7 +42,7 @@ export async function loginUser(email, password) {
   }
 
   return {
-    user: { id: user.id, username: user.username, email: user.email, role: user.role },
+    user: { id: user.id, username: user.username, email: user.email, role: user.role, createdAt: user.createdAt },
     token: signToken(user),
     refreshToken: signRefreshToken(user),
   };
@@ -121,7 +121,7 @@ export async function updateUserProfile(userId, { username, email, currentPasswo
   });
 
   return {
-    user: { id: updatedUser.id, username: updatedUser.username, email: updatedUser.email, role: updatedUser.role },
+    user: { id: updatedUser.id, username: updatedUser.username, email: updatedUser.email, role: updatedUser.role, createdAt: updatedUser.createdAt },
   };
 }
 

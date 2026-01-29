@@ -61,6 +61,13 @@ class EventsService {
   async delete(id: number): Promise<void> {
     return api.delete(`/events/${id}`);
   }
+
+  /**
+   * Envia lembrete de evento para o utilizador autenticado
+   */
+  async sendReminder(id: number): Promise<{ message: string; event: string; sentTo: string }> {
+    return api.post(`/events/${id}/reminder`);
+  }
 }
 
 export const eventsService = new EventsService();

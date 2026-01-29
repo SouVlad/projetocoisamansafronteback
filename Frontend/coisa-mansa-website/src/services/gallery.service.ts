@@ -6,52 +6,82 @@
 import { api } from '@/utils/api';
 
 export interface GalleryImage {
-  id: string;
-  title?: string;
+  id: number;
+  title: string;
   description?: string;
-  imageUrl: string;
-  thumbnailUrl?: string;
+  filename: string;
+  url: string;
+  mimetype: string;
+  size: number;
   category?: string;
-  orderIndex?: number;
+  year?: number;
+  uploadedById: number;
+  uploadedBy: {
+    id: number;
+    username: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateGalleryImageData {
-  title?: string;
+  title: string;
   description?: string;
   category?: string;
+  year?: number;
+}
+
+export interface GalleryCategories {
+  categories: string[];
+  years: number[];
 }
 
 class GalleryService {
   /**
    * Lista todas as imagens da galeria
+   * Pode filtrar por categoria ou ano: ?category=2024 ou ?year=2024
    */
-  async getAll(category?: string): Promise<GalleryImage[]> {
-    const endpoint = category ? `/gallery?category=${category}` : '/gallery';
-    return api.get<GalleryImage[]>(endpoint);
+  async getAll(filters?: { category?: string; year?: number }): Promise<GalleryImage[]> {
+    const params = new URLSearchParams();
+    if (filters?.category) params.append('category', filters.category);
+    if (filters?.year) params.append('year', filters.year.toString());
+    
+    const queryString = params.toString();
+    return api.get<GalleryImage[]>(`/gallery${queryString ? `?${queryString}` : ''}`);
   }
 
   /**
    * Busca uma imagem específica por ID
    */
-  async getById(id: string): Promise<GalleryImage> {
+  async getById(id: number): Promise<GalleryImage> {
     return api.get<GalleryImage>(`/gallery/${id}`);
+  }
+
+  /**
+   * Obtém todas as categorias e anos disponíveis
+   */
+  async getCategories(): Promise<GalleryCategories> {
+    return api.get<GalleryCategories>('/gallery/categories');
   }
 
   /**
    * Upload de nova imagem
    */
-  async upload(file: File, data?: CreateGalleryImageData): Promise<GalleryImage> {
+  async upload(file: File, data: CreateGalleryImageData): Promise<GalleryImage> {
     const formData = new FormData();
     formData.append('image', file);
+    formData.append('title', data.title);
     
-    if (data) {
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          formData.append(key, value);
-        }
-      });
+    if (data.description) {
+      formData.append('description', data.description);
+    }
+    
+    if (data.category) {
+      formData.append('category', data.category);
+    }
+    
+    if (data.year) {
+      formData.append('year', data.year.toString());
     }
     
     return api.upload<GalleryImage>('/gallery', formData);
@@ -60,22 +90,15 @@ class GalleryService {
   /**
    * Atualiza informações de uma imagem
    */
-  async update(id: string, data: Partial<CreateGalleryImageData>): Promise<GalleryImage> {
+  async update(id: number, data: Partial<CreateGalleryImageData>): Promise<GalleryImage> {
     return api.put<GalleryImage>(`/gallery/${id}`, data);
   }
 
   /**
    * Remove uma imagem da galeria
    */
-  async delete(id: string): Promise<void> {
+  async delete(id: number): Promise<void> {
     return api.delete(`/gallery/${id}`);
-  }
-
-  /**
-   * Reordena imagens na galeria
-   */
-  async reorder(imageIds: string[]): Promise<void> {
-    return api.post('/gallery/reorder', { imageIds });
   }
 }
 

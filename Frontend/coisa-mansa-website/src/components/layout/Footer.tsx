@@ -27,14 +27,18 @@ export const Footer: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Logo and Social Media */}
             <div className="flex flex-col items-center md:items-start">
-              <div className="w-16 h-16 bg-coisa-white rounded-full flex items-center justify-center mb-4">
-                <span className="text-coisa-accent font-bold text-lg">CM</span>
+              <div className="w-16 h-16 bg-coisa-white rounded-full flex items-center justify-center mb-4 overflow-hidden">
+                <img 
+                  src="/logo.png" 
+                  alt="Coisa Mansa" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <h3 className="text-coisa-white font-bold text-xl mb-4">Coisa Mansa</h3>
               
               <div className="flex space-x-4">
                 <a
-                  href="https://instagram.com/coisamansa"
+                  href="https://instagram.com/coisa_mansa"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 border border-coisa-white rounded-full flex items-center justify-center text-coisa-white hover:bg-coisa-accent hover:border-coisa-accent transition-all duration-300"
@@ -42,7 +46,7 @@ export const Footer: React.FC = () => {
                   <Instagram className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://facebook.com/coisamansa"
+                  href="https://facebook.com/coisa.mansa"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 border border-coisa-white rounded-full flex items-center justify-center text-coisa-white hover:bg-coisa-accent hover:border-coisa-accent transition-all duration-300"
@@ -50,7 +54,7 @@ export const Footer: React.FC = () => {
                   <Facebook className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://youtube.com/coisamansa"
+                  href="https://www.youtube.com/@CoisaMansa"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-10 h-10 bg-coisa-white rounded-full flex items-center justify-center text-coisa-black hover:bg-coisa-accent hover:text-white transition-all duration-300"

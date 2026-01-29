@@ -1,508 +1,284 @@
-import React, { useState } from 'react';
-import { Calendar, Camera, Package, Users, Settings, BarChart3, Plus, Edit, Trash2 } from 'lucide-react';
-import { Layout } from '@/components/layout/Layout';
-import { useAuth } from '@/contexts/AuthContext';
-import { Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Calendar, Camera, Package, Newspaper, TrendingUp, Users, ArrowRight } from 'lucide-react';
+import { AdminLayout } from '@/components/layout/AdminLayout';
+import { eventsService } from '@/services/events.service';
+import { merchService } from '@/services/merch.service';
+import { newsService } from '@/services/news.service';
+import { galleryService } from '@/services/gallery.service';
 
 export const AdminDashboard: React.FC = () => {
-  const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'concerts' | 'gallery' | 'merch' | 'users' | 'settings'>('overview');
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState({
+    events: 0,
+    images: 0,
+    products: 0,
+    news: 0
+  });
+  const [recentActivity, setRecentActivity] = useState<Array<{
+    text: string;
+    time: string;
+    color: string;
+  }>>([]);
 
-  // Redirect if not admin
-  if (!user || user.role !== 'admin') {
-    return <Navigate to="/login" replace />;
-  }
+  useEffect(() => {
+    loadStats();
+    loadRecentActivity();
+  }, []);
 
-  const tabs = [
-    { id: 'overview', label: 'Visão Geral', icon: BarChart3 },
-    { id: 'concerts', label: 'Concertos', icon: Calendar },
-    { id: 'gallery', label: 'Galeria', icon: Camera },
-    { id: 'merch', label: 'Merchandising', icon: Package },
-    { id: 'users', label: 'Utilizadores', icon: Users },
-    { id: 'settings', label: 'Configurações', icon: Settings },
-  ];
-
-  const stats = [
-    { label: 'Concertos Agendados', value: '8', icon: Calendar, color: 'bg-blue-500' },
-    { label: 'Imagens na Galeria', value: '24', icon: Camera, color: 'bg-green-500' },
-    { label: 'Produtos no Stock', value: '15', icon: Package, color: 'bg-purple-500' },
-    { label: 'Utilizadores Registados', value: '156', icon: Users, color: 'bg-orange-500' },
-  ];
-
-  const renderOverview = () => (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card">
-            <div className="flex items-center">
-              <div className={`${stat.color} rounded-full p-3 mr-4`}>
-                <stat.icon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-coisa-black">{stat.value}</p>
-                <p className="text-coisa-black/70 text-sm">{stat.label}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Recent Activity */}
-      <div className="card">
-        <h3 className="text-xl font-bold text-coisa-black mb-4">Atividade Recente</h3>
-        <div className="space-y-4">
-          <div className="flex items-center space-x-4 p-3 bg-coisa-gray/10 rounded-lg">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-coisa-black">Novo concierto adicionado para 15 de Janeiro</p>
-              <p className="text-coisa-black/60 text-sm">Há 2 horas</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4 p-3 bg-coisa-gray/10 rounded-lg">
-            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-coisa-black">5 novas imagens carregadas na galeria</p>
-              <p className="text-coisa-black/60 text-sm">Há 1 dia</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4 p-3 bg-coisa-gray/10 rounded-lg">
-            <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-            <div className="flex-1">
-              <p className="text-coisa-black">3 utilizadores novos registados</p>
-              <p className="text-coisa-black/60 text-sm">Há 2 dias</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <button className="card hover:scale-105 transition-transform duration-200 text-center">
-          <Plus className="w-12 h-12 text-coisa-accent mx-auto mb-3" />
-          <h4 className="font-bold text-coisa-black mb-2">Novo Concerto</h4>
-          <p className="text-coisa-black/70 text-sm">Adicionar um novo concierto à agenda</p>
-        </button>
-        <button className="card hover:scale-105 transition-transform duration-200 text-center">
-          <Camera className="w-12 h-12 text-coisa-accent mx-auto mb-3" />
-          <h4 className="font-bold text-coisa-black mb-2">Upload Imagem</h4>
-          <p className="text-coisa-black/70 text-sm">Adicionar novas imagens à galeria</p>
-        </button>
-        <button className="card hover:scale-105 transition-transform duration-200 text-center">
-          <Package className="w-12 h-12 text-coisa-accent mx-auto mb-3" />
-          <h4 className="font-bold text-coisa-black mb-2">Novo Produto</h4>
-          <p className="text-coisa-black/70 text-sm">Adicionar produto ao merchandising</p>
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderConcerts = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-coisa-black">Gestão de Concertos</h3>
-        <button className="btn-primary inline-flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Novo Concerto</span>
-        </button>
-      </div>
-
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-coisa-gray/20">
-              <tr>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Data</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Título</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Local</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Preço</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Estado</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-coisa-gray/20">
-              <tr>
-                <td className="py-3 px-4 text-coisa-black">15 Jan 2025</td>
-                <td className="py-3 px-4 text-coisa-black">Coisa Mansa ao Vivo</td>
-                <td className="py-3 px-4 text-coisa-black">Teatro Sá de Miranda</td>
-                <td className="py-3 px-4 text-coisa-black">12.50€</td>
-                <td className="py-3 px-4">
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
-                    Confirmado
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex space-x-2">
-                    <button className="text-coisa-accent hover:text-coisa-accent/80">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 text-coisa-black">20 Fev 2025</td>
-                <td className="py-3 px-4 text-coisa-black">Festival Rock do Minho</td>
-                <td className="py-3 px-4 text-coisa-black">Parque da Cidade</td>
-                <td className="py-3 px-4 text-coisa-black">25.00€</td>
-                <td className="py-3 px-4">
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
-                    Confirmado
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex space-x-2">
-                    <button className="text-coisa-accent hover:text-coisa-accent/80">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderGallery = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-coisa-black">Gestão da Galeria</h3>
-        <button className="btn-primary inline-flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Upload Imagem</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((item) => (
-          <div key={item} className="card group">
-            <div className="aspect-square bg-coisa-gray rounded-lg mb-3 flex items-center justify-center">
-              <Camera className="w-12 h-12 text-coisa-black/50" />
-            </div>
-            <h4 className="font-semibold text-coisa-black mb-1">Imagem {item}</h4>
-            <p className="text-coisa-black/70 text-sm mb-3">Categoria: Concert</p>
-            <div className="flex space-x-2">
-              <button className="flex-1 btn-secondary text-sm py-1">
-                <Edit className="w-3 h-3 mr-1" />
-                Editar
-              </button>
-              <button className="text-red-500 hover:text-red-700">
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderMerch = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-coisa-black">Gestão de Merchandising</h3>
-        <button className="btn-primary inline-flex items-center space-x-2">
-          <Plus className="w-4 h-4" />
-          <span>Novo Produto</span>
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[1, 2, 3, 4, 5, 6].map((item) => (
-          <div key={item} className="card">
-            <div className="aspect-square bg-coisa-gray rounded-lg mb-3 flex items-center justify-center">
-              <Package className="w-12 h-12 text-coisa-black/50" />
-            </div>
-            <h4 className="font-semibold text-coisa-black mb-1">Produto {item}</h4>
-            <p className="text-coisa-black/70 text-sm mb-3">Categoria: T-shirt</p>
-            <div className="flex items-center justify-between mb-3">
-              <span className="font-bold text-coisa-black">15.00€</span>
-              <span className="text-sm text-green-600">25 em stock</span>
-            </div>
-            <div className="flex space-x-2">
-              <button className="flex-1 btn-secondary text-sm py-1">
-                <Edit className="w-3 h-3 mr-1" />
-                Editar
-              </button>
-              <button className="text-red-500 hover:text-red-700">
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-
-  const renderUsers = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-2xl font-bold text-coisa-black">Gestão de Utilizadores</h3>
-        <div className="text-sm text-coisa-black/70">
-          Total: 156 utilizadores registados
-        </div>
-      </div>
-
-      <div className="card overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-coisa-gray/20">
-              <tr>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Nome</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Email</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Função</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Registo</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Estado</th>
-                <th className="text-left py-3 px-4 font-semibold text-coisa-black">Ações</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-coisa-gray/20">
-              <tr>
-                <td className="py-3 px-4 text-coisa-black">João Silva</td>
-                <td className="py-3 px-4 text-coisa-black">joao@email.com</td>
-                <td className="py-3 px-4">
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">
-                    User
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-coisa-black">15 Nov 2024</td>
-                <td className="py-3 px-4">
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
-                    Ativo
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex space-x-2">
-                    <button className="text-coisa-accent hover:text-coisa-accent/80">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr>
-                <td className="py-3 px-4 text-coisa-black">Admin</td>
-                <td className="py-3 px-4 text-coisa-black">admin@coisamansa.pt</td>
-                <td className="py-3 px-4">
-                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">
-                    Admin
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-coisa-black">01 Jan 2024</td>
-                <td className="py-3 px-4">
-                  <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">
-                    Ativo
-                  </span>
-                </td>
-                <td className="py-3 px-4">
-                  <div className="flex space-x-2">
-                    <button className="text-coisa-accent hover:text-coisa-accent/80">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const renderSettings = () => (
-    <div className="space-y-6">
-      <h3 className="text-2xl font-bold text-coisa-black">Configurações do Sistema</h3>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <h4 className="font-bold text-coisa-black mb-4">Configurações Gerais</h4>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Nome da Banda
-              </label>
-              <input
-                type="text"
-                defaultValue="Coisa Mansa"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Email de Contacto
-              </label>
-              <input
-                type="email"
-                defaultValue="info@coisamansa.pt"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Localização
-              </label>
-              <input
-                type="text"
-                defaultValue="Viana do Castelo, Portugal"
-                className="input-field"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <h4 className="font-bold text-coisa-black mb-4">Redes Sociais</h4>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Instagram
-              </label>
-              <input
-                type="url"
-                defaultValue="https://instagram.com/coisamansa"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Facebook
-              </label>
-              <input
-                type="url"
-                defaultValue="https://facebook.com/coisamansa"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                YouTube
-              </label>
-              <input
-                type="url"
-                defaultValue="https://youtube.com/coisamansa"
-                className="input-field"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="card">
-        <h4 className="font-bold text-coisa-black mb-4">Configurações de Email</h4>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-coisa-black mb-2">
-              Servidor SMTP
-            </label>
-            <input
-              type="text"
-              defaultValue="smtp.gmail.com"
-              className="input-field"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Porta
-              </label>
-              <input
-                type="number"
-                defaultValue="587"
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-coisa-black mb-2">
-                Encriptação
-              </label>
-              <select className="input-field">
-                <option value="tls">TLS</option>
-                <option value="ssl">SSL</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <button className="btn-primary">
-          Guardar Configurações
-        </button>
-      </div>
-    </div>
-  );
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'overview':
-        return renderOverview();
-      case 'concerts':
-        return renderConcerts();
-      case 'gallery':
-        return renderGallery();
-      case 'merch':
-        return renderMerch();
-      case 'users':
-        return renderUsers();
-      case 'settings':
-        return renderSettings();
-      default:
-        return renderOverview();
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      const [events, images, products, news] = await Promise.all([
+        eventsService.getAll().catch(() => []),
+        galleryService.getAll().catch(() => []),
+        merchService.getAll().catch(() => []),
+        newsService.getAll().catch(() => [])
+      ]);
+      
+      setStats({
+        events: events.length,
+        images: images.length,
+        products: products.length,
+        news: news.length
+      });
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const loadRecentActivity = async () => {
+    try {
+      const [events, images, products, news] = await Promise.all([
+        eventsService.getAll().catch(() => []),
+        galleryService.getAll().catch(() => []),
+        merchService.getAll().catch(() => []),
+        newsService.getAll().catch(() => [])
+      ]);
+
+      const activities: Array<{ text: string; time: Date; color: string }> = [];
+
+      // Adicionar eventos
+      events.slice(0, 5).forEach((event: any) => {
+        activities.push({
+          text: `Evento "${event.title}" adicionado`,
+          time: new Date(event.createdAt),
+          color: 'bg-blue-500'
+        });
+      });
+
+      // Adicionar imagens
+      images.slice(0, 5).forEach((image: any) => {
+        activities.push({
+          text: `Imagem "${image.title}" carregada na galeria`,
+          time: new Date(image.createdAt),
+          color: 'bg-green-500'
+        });
+      });
+
+      // Adicionar produtos
+      products.slice(0, 5).forEach((product: any) => {
+        activities.push({
+          text: `Produto "${product.name}" ${product.stock === 0 ? 'esgotado' : 'adicionado'}`,
+          time: new Date(product.createdAt),
+          color: product.stock === 0 ? 'bg-orange-500' : 'bg-purple-500'
+        });
+      });
+
+      // Adicionar notícias
+      news.slice(0, 5).forEach((article: any) => {
+        activities.push({
+          text: `Notícia "${article.title}" publicada`,
+          time: new Date(article.createdAt),
+          color: 'bg-purple-500'
+        });
+      });
+
+      // Ordenar por data (mais recentes primeiro) e pegar apenas os 5 mais recentes
+      const sortedActivities = activities
+        .sort((a, b) => b.time.getTime() - a.time.getTime())
+        .slice(0, 5)
+        .map(activity => ({
+          text: activity.text,
+          time: getRelativeTime(activity.time),
+          color: activity.color
+        }));
+
+      setRecentActivity(sortedActivities);
+    } catch (error) {
+      console.error('Erro ao carregar atividade recente:', error);
+    }
+  };
+
+  // Função para calcular tempo relativo
+  const getRelativeTime = (date: Date): string => {
+    const now = new Date();
+    const diffInMs = now.getTime() - date.getTime();
+    const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
+    const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+
+    if (diffInMinutes < 60) {
+      return diffInMinutes <= 1 ? 'Há 1 minuto' : `Há ${diffInMinutes} minutos`;
+    } else if (diffInHours < 24) {
+      return diffInHours === 1 ? 'Há 1 hora' : `Há ${diffInHours} horas`;
+    } else if (diffInDays < 7) {
+      return diffInDays === 1 ? 'Há 1 dia' : `Há ${diffInDays} dias`;
+    } else {
+      return date.toLocaleDateString('pt-PT');
+    }
+  };
+
+  const statsCards = [
+    { label: 'Eventos', value: stats.events.toString(), icon: Calendar, color: 'bg-blue-500', link: '/admin/agenda' },
+    { label: 'Imagens', value: stats.images.toString(), icon: Camera, color: 'bg-green-500', link: '/admin/galeria' },
+    { label: 'Produtos', value: stats.products.toString(), icon: Package, color: 'bg-purple-500', link: '/admin/merch' },
+    { label: 'Notícias', value: stats.news.toString(), icon: Newspaper, color: 'bg-orange-500', link: '/admin/noticias' },
+  ];
+
+  const quickActions = [
+    { 
+      title: 'Criar Evento',
+      description: 'Adiciona um novo concerto ou evento à agenda',
+      icon: Calendar,
+      color: 'bg-blue-500',
+      link: '/admin/agenda'
+    },
+    { 
+      title: 'Upload Imagem',
+      description: 'Adiciona fotos à galeria da banda',
+      icon: Camera,
+      color: 'bg-green-500',
+      link: '/admin/galeria'
+    },
+    { 
+      title: 'Novo Produto',
+      description: 'Adiciona merchandising à loja',
+      icon: Package,
+      color: 'bg-purple-500',
+      link: '/admin/merch'
+    },
+    { 
+      title: 'Publicar Notícia',
+      description: 'Cria uma nova notícia sobre a banda',
+      icon: Newspaper,
+      color: 'bg-orange-500',
+      link: '/admin/noticias'
+    },
+  ];
+
   return (
-    <Layout>
-      <div className="min-h-screen bg-coisa-gray/10">
-        <div className="container-custom py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-coisa-black mb-2">
-              Painel de Administração
-            </h1>
-            <p className="text-coisa-black/70">
-              Gestiona todo o conteúdo do website da Coisa Mansa
-            </p>
-          </div>
-
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Sidebar */}
-            <div className="lg:w-64">
-              <div className="card sticky top-24">
-                <nav className="space-y-2">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
-                      className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors duration-200 ${
-                        activeTab === tab.id
-                          ? 'bg-coisa-accent text-white'
-                          : 'text-coisa-black hover:bg-coisa-gray/20'
-                      }`}
-                    >
-                      <tab.icon className="w-5 h-5" />
-                      <span>{tab.label}</span>
-                    </button>
-                  ))}
-                </nav>
-              </div>
+    <AdminLayout>
+      <div className="space-y-6">
+        {/* Welcome Section */}
+        <div className="card bg-gradient-to-r from-coisa-accent to-coisa-accent/80 text-white">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold mb-2">Bem-vindo ao Painel!</h2>
+              <p className="text-white/90">
+                Gere todo o conteúdo do site Coisa Mansa
+              </p>
             </div>
+            <TrendingUp className="w-16 h-16 opacity-50" />
+          </div>
+        </div>
 
-            {/* Main Content */}
-            <div className="flex-1">
-              {renderTabContent()}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {loading ? (
+            <div className="col-span-full text-center py-8">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-coisa-accent"></div>
+              <p className="mt-4 text-coisa-black/60">A carregar estatísticas...</p>
+            </div>
+          ) : (
+            statsCards.map((stat) => (
+              <Link
+                key={stat.label}
+                to={stat.link}
+                className="card hover:shadow-lg transition-all duration-200 hover:scale-105"
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-coisa-black/60 text-sm">{stat.label}</p>
+                    <p className="text-3xl font-bold text-coisa-black mt-1">{stat.value}</p>
+                  </div>
+                  <div className={`${stat.color} rounded-full p-3`}>
+                    <stat.icon className="w-6 h-6 text-white" />
+                  </div>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
+
+        {/* Quick Actions */}
+        <div>
+          <h3 className="text-2xl font-bold text-coisa-black mb-4">Ações Rápidas</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {quickActions.map((action) => (
+              <Link
+                key={action.title}
+                to={action.link}
+                className="card hover:shadow-lg transition-all duration-200 group"
+              >
+                <div className={`${action.color} rounded-lg p-3 w-fit mb-4 group-hover:scale-110 transition-transform`}>
+                  <action.icon className="w-8 h-8 text-white" />
+                </div>
+                <h4 className="font-bold text-coisa-black mb-2 group-hover:text-coisa-accent transition-colors">
+                  {action.title}
+                </h4>
+                <p className="text-coisa-black/70 text-sm mb-3">
+                  {action.description}
+                </p>
+                <div className="flex items-center text-coisa-accent text-sm font-medium">
+                  <span>Ir para página</span>
+                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activity */}
+        <div className="card">
+          <h3 className="text-xl font-bold text-coisa-black mb-4">Atividade Recente</h3>
+          <div className="space-y-3">
+            {recentActivity.length === 0 ? (
+              <p className="text-center text-coisa-black/60 py-4">
+                Nenhuma atividade recente
+              </p>
+            ) : (
+              recentActivity.map((activity, index) => (
+                <div key={index} className="flex items-center space-x-4 p-3 bg-coisa-gray/5 rounded-lg hover:bg-coisa-gray/10 transition-colors">
+                  <div className={`w-2 h-2 ${activity.color} rounded-full`}></div>
+                  <div className="flex-1">
+                    <p className="text-coisa-black">{activity.text}</p>
+                    <p className="text-coisa-black/60 text-sm">{activity.time}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Tips Section */}
+        <div className="card bg-blue-50 border-l-4 border-blue-500">
+          <div className="flex items-start space-x-3">
+            <div className="bg-blue-500 rounded-full p-2 flex-shrink-0">
+              <Users className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h4 className="font-bold text-coisa-black mb-1">Dica do Administrador</h4>
+              <p className="text-coisa-black/70 text-sm">
+                Mantém o conteúdo do site atualizado regularmente para manter os fãs envolvidos. 
+                Publica notícias, adiciona fotos dos concertos e atualiza a agenda com novos eventos!
+              </p>
             </div>
           </div>
         </div>
       </div>
-    </Layout>
+    </AdminLayout>
   );
 };

@@ -16,16 +16,23 @@ enum CartStatus {
   CANCELED
 }
 
+enum Role {
+  USER
+  ADMIN
+  OWNER
+}
+
 model User {
-  id         Int      @id @default(autoincrement())
-  username   String   @unique
- email      String   @unique
+  id         Int            @id @default(autoincrement())
+  username   String         @unique
+ email      String         @unique
   password   String
-  role       String   @default("USER")
-  createdAt  DateTime @default(now())
-  superAdmin Boolean  @default(false)
-  events     Event[]  @relation("creatorEvents")
+  role       Role           @default(USER)
+  createdAt  DateTime       @default(now())
+  events     Event[]        @relation("creatorEvents")
   carts      Cart[]
+  galleryImages GalleryImage[]
+  newsArticles NewsArticle[] @relation("authorArticles")
 }
 
 model Event {
@@ -60,6 +67,7 @@ model Merchandise {
   description String?
   price       Float
   stock       Int
+  imageUrl    String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   isActive    Boolean       @default(true)
@@ -85,4 +93,32 @@ model CartItem {
   quantity      Int         @default(1)
   unitPrice     Float       // snapshot do preço no momento da compra
   createdAt     DateTime    @default(now())
+}
+
+model GalleryImage {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  filename    String   @unique
+  mimetype    String
+  size        Int      // em bytes
+  category    String?  // Ex: "2023", "2024", "Concertos", "Estúdio", etc.
+  year        Int?     // Ano específico para facilitar filtros
+  uploadedById Int
+  uploadedBy  User     @relation(fields: [uploadedById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model NewsArticle {
+  id          Int      @id @default(autoincrement())
+  title       String
+  summary     String   // resumo curto para listagens
+  content     String   @db.Text // conteúdo completo
+  isPublished Boolean  @default(false)
+  publishedAt DateTime?
+  authorId    Int
+  author      User     @relation("authorArticles", fields: [authorId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

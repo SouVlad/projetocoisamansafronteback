@@ -19,7 +19,7 @@ export async function getMerchandiseById(id) {
   return merchandise;
 }
 
-export async function createMerchandise({ name, description, price, stock }) {
+export async function createMerchandise({ name, description, price, stock, imageUrl }) {
   if (!name || price === undefined || stock === undefined) {
     throw new Error("Nome, preço e stock são obrigatórios.");
   }
@@ -38,6 +38,7 @@ export async function createMerchandise({ name, description, price, stock }) {
       description,
       price,
       stock,
+      imageUrl,
       isActive: true,
     },
   });
@@ -45,7 +46,7 @@ export async function createMerchandise({ name, description, price, stock }) {
   return merchandise;
 }
 
-export async function updateMerchandise(id, { name, description, price, stock, isActive }) {
+export async function updateMerchandise(id, { name, description, price, stock, isActive, imageUrl }) {
   const merchandise = await getMerchandiseById(id);
 
   if (price !== undefined && price <= 0) {
@@ -62,6 +63,7 @@ export async function updateMerchandise(id, { name, description, price, stock, i
   if (price !== undefined) updateData.price = price;
   if (stock !== undefined) updateData.stock = stock;
   if (isActive !== undefined) updateData.isActive = isActive;
+  if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
 
   const updated = await prisma.merchandise.update({
     where: { id },

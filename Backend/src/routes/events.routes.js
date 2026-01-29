@@ -5,6 +5,7 @@ import {
   createEvent,
   updateEvent,
   deleteEvent,
+  sendReminder,
 } from "../controllers/eventsController.js";
 import { optionalAuth, requireAuth, requireAdmin } from "../middlewares/authMiddleware.js";
 
@@ -15,5 +16,6 @@ router.get("/:id", optionalAuth, getEvent);
 router.post("/", requireAuth, requireAdmin, createEvent);
 router.put("/:id", requireAuth, requireAdmin, updateEvent);
 router.delete("/:id", requireAuth, requireAdmin, deleteEvent);
+router.post("/:id/reminder", requireAuth, sendReminder);
 
 export default router;

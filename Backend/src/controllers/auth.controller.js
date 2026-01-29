@@ -111,7 +111,7 @@ export async function logout(req, res) {
 
 export async function getProfile(req, res) {
   try {
-    const result = await getUserProfile(req.user.userId);
+    const result = await getUserProfile(req.user.id);
     return res.json(result);
   } catch (err) {
     console.error("Erro ao obter perfil:", err);
@@ -124,7 +124,7 @@ export async function getProfile(req, res) {
 
 export async function updateProfile(req, res) {
   try {
-    const result = await updateUserProfile(req.user.userId, req.body);
+    const result = await updateUserProfile(req.user.id, req.body);
     return res.json({
       message: "Perfil atualizado com sucesso!",
       user: result.user,

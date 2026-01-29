@@ -44,7 +44,7 @@ async function fetchConcertsToNotify() {
   const from = minutesBefore(target, WINDOW_MINUTES);
   const to = minutesAfter(target, WINDOW_MINUTES);
 
-  console.log("DEBUG: fetchConcertsToNotify interval:", from.toISOString(), "->", to.toISOString());
+  // console.log("DEBUG: fetchConcertsToNotify interval:", from.toISOString(), "->", to.toISOString());
 
   const concerts = await prisma.concert.findMany({
     where: {
@@ -62,10 +62,10 @@ async function workerIteration() {
   try {
     console.log("DEBUG: workerIteration started — searching for concerts...");
     const concerts = await fetchConcertsToNotify();
-    console.log("DEBUG: concerts found:", concerts.length);
+    // console.log("DEBUG: concerts found:", concerts.length);
     
     if (!concerts.length) {
-      console.log("No concerts to notify now.");
+      // console.log("No concerts to notify now.");
       return;
     }
 

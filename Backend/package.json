@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node src/index.js",
     "check:env": "node check_env.js",
+    "postinstall": "prisma generate",
     "prisma:push": "dotenv -- npx prisma db push",
     "prisma:generate": "dotenv -- npx prisma generate",
     "prisma:migrate": "dotenv -- npx prisma migrate dev",
@@ -13,10 +14,12 @@
   "dependencies": {
     "@prisma/client": "^6.18.0",
     "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^4.22.1",
     "googleapis": "^166.0.0",
     "jsonwebtoken": "^9.0.0",
+    "multer": "^2.0.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.10",
     "pg": "^8.16.3"

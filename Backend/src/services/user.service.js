@@ -2,17 +2,16 @@ import prisma from "../prisma.js";
 
 export async function getAllUsers() {
   return await prisma.user.findMany({
-    where: {
-      superAdmin: false,
-    },
     select: {
       id: true,
       username: true,
       email: true,
       role: true,
-      superAdmin: true,
       createdAt: true,
     },
+    orderBy: {
+      createdAt: 'desc'
+    }
   });
 }
 
@@ -24,7 +23,6 @@ export async function getUserById(userId) {
       username: true,
       email: true,
       role: true,
-      superAdmin: true,
       createdAt: true,
     },
   });

@@ -49,8 +49,12 @@ export const Header: React.FC = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-coisa-white rounded-full flex items-center justify-center">
-              <span className="text-coisa-accent font-bold text-sm">CM</span>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-coisa-white flex items-center justify-center">
+              <img 
+                src="/logo.png" 
+                alt="Coisa Mansa" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="text-coisa-white font-bold text-lg hidden sm:block">
               Coisa Mansa
@@ -82,21 +86,23 @@ export const Header: React.FC = () => {
                     
                     {/* Dropdown Menu */}
                     {isExploreOpen && (
-                      <div className="absolute top-full left-0 mt-1 w-48 bg-coisa-black-light border border-coisa-accent/20 rounded-lg shadow-xl">
-                        {item.children.map((child) => (
-                          <Link
-                            key={child.href}
-                            to={child.href}
-                            className={clsx(
-                              'block px-4 py-3 text-sm transition-colors duration-200',
-                              isActive(child.href)
-                                ? 'text-coisa-accent bg-coisa-accent/10'
-                                : 'text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5'
-                            )}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
+                      <div className="absolute top-full left-0 pt-2 w-48">
+                        <div className="bg-coisa-black-light border border-coisa-accent/20 rounded-lg shadow-xl">
+                          {item.children.map((child) => (
+                            <Link
+                              key={child.href}
+                              to={child.href}
+                              className={clsx(
+                                'block px-4 py-3 text-sm transition-colors duration-200',
+                                isActive(child.href)
+                                  ? 'text-coisa-accent bg-coisa-accent/10'
+                                  : 'text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5'
+                              )}
+                            >
+                              {child.label}
+                            </Link>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -126,7 +132,7 @@ export const Header: React.FC = () => {
                   className="flex items-center space-x-2 text-coisa-white hover:text-coisa-accent transition-colors duration-200"
                 >
                   <User className="w-5 h-5" />
-                  <span className="text-sm">{user?.name}</span>
+                  <span className="text-sm">{user?.username}</span>
                   <ChevronDown className="w-4 h-4" />
                 </button>
                 
@@ -138,12 +144,13 @@ export const Header: React.FC = () => {
                     >
                       Meu Perfil
                     </Link>
-                    {user?.role === 'admin' && (
+                    {(user?.role === 'ADMIN' || user?.role === 'OWNER') && (
                       <Link
                         to="/admin"
                         className="block px-4 py-3 text-sm text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5 transition-colors duration-200"
+                        onClick={() => setIsUserMenuOpen(false)}
                       >
-                        Painel Admin
+                        Painel de Administração
                       </Link>
                     )}
                     <hr className="border-coisa-accent/20" />
@@ -158,12 +165,21 @@ export const Header: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Link
-                to="/login"
-                className="text-coisa-white hover:text-coisa-accent transition-colors duration-200"
-              >
-                Entrar
-              </Link>
+              <div className="flex items-center space-x-2">
+                <Link
+                  to="/login"
+                  className="text-coisa-white hover:text-coisa-accent transition-colors duration-200"
+                >
+                  Entrar
+                </Link>
+                <span className="text-coisa-gray">|</span>
+                <Link
+                  to="/register"
+                  className="text-coisa-white hover:text-coisa-accent transition-colors duration-200"
+                >
+                  Registar
+                </Link>
+              </div>
             )}
           </div>
 
@@ -221,7 +237,7 @@ export const Header: React.FC = () => {
               {isAuthenticated ? (
                 <div className="space-y-1">
                   <div className="px-3 py-2 text-sm text-coisa-gray">
-                    Olá, {user?.name}
+                    Olá, {user?.username}
                   </div>
                   <Link
                     to="/perfil"
@@ -230,13 +246,13 @@ export const Header: React.FC = () => {
                   >
                     Meu Perfil
                   </Link>
-                  {user?.role === 'admin' && (
+                  {(user?.role === 'ADMIN' || user?.role === 'OWNER') && (
                     <Link
                       to="/admin"
                       className="block px-3 py-2 text-base text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5 transition-colors duration-200"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      Painel Admin
+                      Painel de Administração
                     </Link>
                   )}
                   <button
@@ -251,13 +267,22 @@ export const Header: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <Link
-                  to="/login"
-                  className="block px-3 py-2 text-base text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5 transition-colors duration-200"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  Entrar
-                </Link>
+                <div className="space-y-1">
+                  <Link
+                    to="/login"
+                    className="block px-3 py-2 text-base text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5 transition-colors duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Entrar
+                  </Link>
+                  <Link
+                    to="/register"
+                    className="block px-3 py-2 text-base text-coisa-white hover:text-coisa-accent hover:bg-coisa-accent/5 transition-colors duration-200"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Registar
+                  </Link>
+                </div>
               )}
             </div>
           </div>

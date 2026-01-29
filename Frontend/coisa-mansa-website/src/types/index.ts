@@ -2,7 +2,7 @@ export interface User {
   id: number;
   email: string;
   username: string;
-  role: 'ADMIN' | 'USER';
+  role: 'ADMIN' | 'USER' | 'OWNER';
   superAdmin?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -50,7 +50,7 @@ export interface MerchItem {
   price: number;
   imageUrl?: string;
   stock: number;
-  available: boolean;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -68,6 +68,7 @@ export interface ContactMessage {
 export interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
+  register: (username: string, email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
   isAuthenticated: boolean;

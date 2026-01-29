@@ -125,7 +125,7 @@ class ApiService {
   /**
    * Upload de arquivo (multipart/form-data)
    */
-  async upload<T>(endpoint: string, formData: FormData): Promise<T> {
+  async upload<T>(endpoint: string, formData: FormData, method: 'POST' | 'PUT' = 'POST'): Promise<T> {
     const token = localStorage.getItem('auth_token');
     
     const headers: HeadersInit = {};
@@ -134,7 +134,7 @@ class ApiService {
     }
 
     const response = await fetch(`${this.baseURL}${endpoint}`, {
-      method: 'POST',
+      method,
       headers,
       body: formData,
     });

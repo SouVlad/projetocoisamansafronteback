@@ -39,17 +39,41 @@ class MerchService {
   }
 
   /**
-   * Cria um novo produto (admin)
+   * Cria um novo produto (admin) com upload de imagem
    */
-  async create(data: CreateProductData): Promise<MerchItem> {
-    return api.post<MerchItem>('/merchandise', data);
+  async create(file: File | null, data: Omit<CreateProductData, 'imageUrl'>): Promise<MerchItem> {
+    const formData = new FormData();
+    
+    if (file) {
+      formData.append('image', file);
+    }
+    
+    formData.append('name', data.name);
+    if (data.description) formData.append('description', data.description);
+    formData.append('price', data.price.toString());
+    formData.append('stock', (data.stock || 0).toString());
+    formData.append('available', (data.available !== false).toString());
+    
+    return api.upload<MerchItem>('/merchandise', formData);
   }
 
   /**
-   * Atualiza um produto existente (admin)
+   * Atualiza um produto existente (admin) com upload opcional de imagem
    */
-  async update(id: number, data: Partial<CreateProductData>): Promise<MerchItem> {
-    return api.put<MerchItem>(`/merchandise/${id}`, data);
+  async update(id: number, file: File | null, data: Partial<CreateProductData>): Promise<MerchItem> {
+    const formData = new FormData();
+    
+    if (file) {
+      formData.append('image', file);
+    }
+    
+    if (data.name) formData.append('name', data.name);
+    if (data.description !== undefined) formData.append('description', data.description);
+    if (data.price !== undefined) formData.append('price', data.price.toString());
+    if (data.stock !== undefined) formData.append('stock', data.stock.toString());
+    if (data.available !== undefined) formData.append('available', data.available.toString());
+    
+    return api.upload<MerchItem>(`/merchandise/${id}`, formData, 'PUT');
   }
 
   /**

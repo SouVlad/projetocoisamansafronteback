@@ -1,9 +1,10 @@
 // src/controllers/eventsController.js
 import prisma from "../prisma.js";
+import { sendEventReminder } from "../services/email.service.js";
 
 export async function listEvents(req, res) {
   try {
-    const isAdmin = req.user?.role === "ADMIN" || req.user?.superAdmin === true;
+    const isAdmin = req.user?.role === "ADMIN" || req.user?.role === "OWNER";
     const where = isAdmin ? {} : { isPublic: true };
 
     const events = await prisma.event.findMany({
@@ -23,7 +24,7 @@ export async function getEvent(req, res) {
     const ev = await prisma.event.findUnique({ where: { id } });
     if (!ev) return res.status(404).json({ error: "Evento não encontrado" });
 
-    const isAdmin = req.user?.role === "ADMIN" || req.user?.superAdmin === true;
+    const isAdmin = req.user?.role === "ADMIN" || req.user?.role === "OWNER";
     if (!ev.isPublic && !isAdmin) return res.status(403).json({ error: "Acesso negado" });
 
     res.json(ev);
@@ -50,7 +51,7 @@ export async function createEvent(req, res) {
         startsAt: starts,
         endsAt: ends,
         isPublic: isPublic ?? true,
-        createdById: req.user.userId,
+        createdById: req.user.id,
       },
     });
     res.status(201).json(ev);
@@ -104,5 +105,42 @@ export async function deleteEvent(req, res) {
     console.error(err);
     if (err?.code === "P2025") return res.status(404).json({ error: "Evento não encontrado" });
     res.status(500).json({ error: "Erro ao apagar evento." });
+  }
+}
+
+/**
+ * Envia lembrete de evento para o utilizador autenticado
+ */
+export async function sendReminder(req, res) {
+  try {
+    const eventId = Number(req.params.id);
+    
+    // Buscar o evento
+    const event = await prisma.event.findUnique({ where: { id: eventId } });
+    if (!event) {
+      return res.status(404).json({ error: "Evento não encontrado" });
+    }
+
+    // Buscar o utilizador autenticado
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: { id: true, username: true, email: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Utilizador não encontrado" });
+    }
+
+    // Enviar email
+    await sendEventReminder(user, event);
+
+    res.json({ 
+      message: "Lembrete enviado com sucesso!",
+      event: event.title,
+      sentTo: user.email
+    });
+  } catch (err) {
+    console.error("Erro ao enviar lembrete:", err);
+    res.status(500).json({ error: "Erro ao enviar lembrete. Verifica a configuração de email." });
   }
 }

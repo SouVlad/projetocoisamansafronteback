@@ -32,6 +32,7 @@ model User {
   events     Event[]        @relation("creatorEvents")
   carts      Cart[]
   galleryImages GalleryImage[]
+  albums     Album[]        @relation("creatorAlbums")
   newsArticles NewsArticle[] @relation("authorArticles")
 }
 
@@ -104,10 +105,26 @@ model GalleryImage {
   size        Int      // em bytes
   category    String?  // Ex: "2023", "2024", "Concertos", "Estúdio", etc.
   year        Int?     // Ano específico para facilitar filtros
+  albumId     Int?     // Pasta/álbum onde a imagem está
+  album       Album?   @relation(fields: [albumId], references: [id], onDelete: SetNull)
   uploadedById Int
   uploadedBy  User     @relation(fields: [uploadedById], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Album {
+  id          Int            @id @default(autoincrement())
+  name        String         // Nome do álbum, ex: "Concertos 2023"
+  description String?        // Descrição opcional
+  coverImage  String?        // Nome do arquivo da imagem de capa
+  isPublic    Boolean        @default(true) // Se deve aparecer na galeria pública
+  order       Int            @default(0) // Ordem de exibição
+  createdById Int
+  createdBy   User           @relation("creatorAlbums", fields: [createdById], references: [id])
+  images      GalleryImage[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
 model NewsArticle {

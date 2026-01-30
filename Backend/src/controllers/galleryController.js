@@ -92,7 +92,7 @@ export async function uploadGalleryImage(req, res) {
       return res.status(400).json({ error: "Nenhum arquivo foi enviado." });
     }
 
-    const { title, description, category, year } = req.body;
+    const { title, description, category, year, albumId } = req.body;
 
     if (!title) {
       // Se não houver título, remover o arquivo
@@ -107,6 +107,7 @@ export async function uploadGalleryImage(req, res) {
         description: description || null,
         category: category || null,
         year: year ? parseInt(year) : null,
+        albumId: albumId ? parseInt(albumId) : null,
         filename: req.file.filename,
         mimetype: req.file.mimetype,
         size: req.file.size,
@@ -119,6 +120,7 @@ export async function uploadGalleryImage(req, res) {
             username: true,
           },
         },
+        album: true
       },
     });
 

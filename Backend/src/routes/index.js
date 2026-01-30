@@ -5,6 +5,7 @@ import eventsRoutes from "./events.routes.js";
 import merchandiseRoutes from "./merchandiseRoutes.js";
 import cartRoutes from "./cartRoutes.js";
 import galleryRoutes from "./gallery.routes.js";
+import albumRoutes from "./album.routes.js";
 import newsRoutes from "./news.routes.js";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.use("/events", eventsRoutes);
 router.use("/merchandise", merchandiseRoutes);
 router.use("/cart", cartRoutes);
 router.use("/gallery", galleryRoutes);
+router.use("/albums", albumRoutes);
 router.use("/news", newsRoutes);
 
 export default router;

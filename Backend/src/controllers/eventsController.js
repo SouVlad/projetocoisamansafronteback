@@ -131,16 +131,24 @@ export async function sendReminder(req, res) {
       return res.status(404).json({ error: "Utilizador não encontrado" });
     }
 
-    // Enviar email
-    await sendEventReminder(user, event);
-
+    // Responder imediatamente ao cliente
     res.json({ 
-      message: "Lembrete enviado com sucesso!",
+      message: "Lembrete agendado para envio!",
       event: event.title,
       sentTo: user.email
     });
+
+    // Enviar email em segundo plano (não espera o resultado)
+    sendEventReminder(user, event)
+      .then(() => {
+        console.log(`✅ Lembrete enviado com sucesso para ${user.email} sobre ${event.title}`);
+      })
+      .catch((err) => {
+        console.error(`❌ Erro ao enviar lembrete para ${user.email}:`, err);
+      });
+
   } catch (err) {
-    console.error("Erro ao enviar lembrete:", err);
-    res.status(500).json({ error: "Erro ao enviar lembrete. Verifica a configuração de email." });
+    console.error("Erro ao processar pedido de lembrete:", err);
+    res.status(500).json({ error: "Erro ao processar pedido de lembrete." });
   }
 }

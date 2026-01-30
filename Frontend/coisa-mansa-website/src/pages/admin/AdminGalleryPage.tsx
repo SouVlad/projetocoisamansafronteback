@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Upload, Image as ImageIcon, X, Grid, List } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { galleryService, GalleryImage } from '@/services/gallery.service';
+import { albumService, Album } from '@/services/album.service';
 
 export const AdminGalleryPage: React.FC = () => {
   const [images, setImages] = useState<GalleryImage[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(true);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
@@ -13,13 +15,24 @@ export const AdminGalleryPage: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     title: '',
-    description: ''
+    description: '',
+    albumId: ''
   });
 
-  // Carregar imagens
+  // Carregar imagens e álbuns
   useEffect(() => {
     loadImages();
+    loadAlbums();
   }, []);
+
+  const loadAlbums = async () => {
+    try {
+      const data = await albumService.getAll();
+      setAlbums(data);
+    } catch (error: any) {
+      console.error('Erro ao carregar álbuns:', error);
+    }
+  };
 
   const loadImages = async () => {
     try {
@@ -60,7 +73,13 @@ export const AdminGalleryPage: React.FC = () => {
           return;
         }
 
-        await galleryService.upload(selectedFile, formData);
+        const uploadData = {
+          title: formData.title,
+          description: formData.description,
+          albumId: formData.albumId ? parseInt(formData.albumId) : undefined
+        };
+
+        await galleryService.upload(selectedFile, uploadData);
         alert('Imagem carregada com sucesso!');
       }
       
@@ -76,7 +95,8 @@ export const AdminGalleryPage: React.FC = () => {
     setEditingImage(image);
     setFormData({
       title: image.title,
-      description: image.description || ''
+      description: image.description || '',
+      albumId: ''
     });
     setShowUploadModal(true);
   };
@@ -101,7 +121,11 @@ export const AdminGalleryPage: React.FC = () => {
     setEditingImage(null);
     setSelectedFile(null);
     setPreviewUrl(null);
-    setFormData({ title: '', description: '' });
+    setFormData({
+      title: '',
+      description: '',
+      albumId: ''
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -386,6 +410,29 @@ export const AdminGalleryPage: React.FC = () => {
                   placeholder="Descrição opcional..."
                 />
               </div>
+
+              {!editingImage && (
+                <div>
+                  <label className="block text-sm font-medium text-coisa-black mb-2">
+                    Álbum (Pasta)
+                  </label>
+                  <select
+                    value={formData.albumId}
+                    onChange={(e) => setFormData({ ...formData, albumId: e.target.value })}
+                    className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
+                  >
+                    <option value="">Sem álbum</option>
+                    {albums.map((album) => (
+                      <option key={album.id} value={album.id}>
+                        {album.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-coisa-black/60 mt-1">
+                    Seleciona um álbum para organizar a imagem
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-end space-x-3 pt-4">
                 <button

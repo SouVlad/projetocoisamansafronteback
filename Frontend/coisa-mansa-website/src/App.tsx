@@ -18,6 +18,7 @@ import { ProfilePage } from '@/pages/public/ProfilePage';
 import { AdminDashboard } from '@/pages/admin/AdminDashboard';
 import { AdminEventsPage } from '@/pages/admin/AdminEventsPage';
 import { AdminGalleryPage } from '@/pages/admin/AdminGalleryPage';
+import { AdminAlbumsPage } from '@/pages/admin/AdminAlbumsPage';
 import { AdminMerchPage } from '@/pages/admin/AdminMerchPage';
 import { AdminNewsPage } from '@/pages/admin/AdminNewsPage';
 import { AdminUsersPage } from '@/pages/admin/AdminUsersPage';
@@ -82,6 +83,14 @@ function App() {
         element={
           <ProtectedRoute>
             <AdminGalleryPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/admin/albuns" 
+        element={
+          <ProtectedRoute>
+            <AdminAlbumsPage />
           </ProtectedRoute>
         } 
       />

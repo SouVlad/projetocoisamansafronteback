@@ -57,7 +57,7 @@ export const Footer: React.FC = () => {
                   href="https://www.youtube.com/@CoisaMansa"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-coisa-white rounded-full flex items-center justify-center text-coisa-black hover:bg-coisa-accent hover:text-white transition-all duration-300"
+                  className="w-10 h-10 border border-coisa-white rounded-full flex items-center justify-center text-coisa-white hover:bg-coisa-accent hover:border-coisa-accent transition-all duration-300"
                 >
                   <Youtube className="w-5 h-5" />
                 </a>
@@ -69,18 +69,11 @@ export const Footer: React.FC = () => {
               <h4 className="text-coisa-white font-bold text-lg mb-4">Contactos</h4>
               <div className="space-y-3">
                 <a
-                  href="tel:+351912345678"
-                  className="flex items-center justify-center md:justify-start space-x-2 text-coisa-gray hover:text-coisa-accent transition-colors duration-200"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span>+351 912 345 678</span>
-                </a>
-                <a
-                  href="mailto:info@coisamansa.pt"
+                  href="mailto:"
                   className="flex items-center justify-center md:justify-start space-x-2 text-coisa-gray hover:text-coisa-accent transition-colors duration-200"
                 >
                   <Mail className="w-4 h-4" />
-                  <span>info@coisamansa.pt</span>
+                  <span>uma.coisa.mansa@gmail.com</span>
                 </a>
                 <a
                   href="https://linktr.ee/coisamansa"

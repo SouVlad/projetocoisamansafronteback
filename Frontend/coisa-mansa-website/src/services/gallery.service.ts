@@ -29,6 +29,7 @@ export interface CreateGalleryImageData {
   description?: string;
   category?: string;
   year?: number;
+  albumId?: number;
 }
 
 export interface GalleryCategories {
@@ -82,6 +83,10 @@ class GalleryService {
     
     if (data.year) {
       formData.append('year', data.year.toString());
+    }
+    
+    if (data.albumId) {
+      formData.append('albumId', data.albumId.toString());
     }
     
     return api.upload<GalleryImage>('/gallery', formData);

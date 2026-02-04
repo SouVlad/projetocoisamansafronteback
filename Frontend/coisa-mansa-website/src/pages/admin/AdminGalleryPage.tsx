@@ -136,7 +136,7 @@ export const AdminGalleryPage: React.FC = () => {
 
   // Construir URL completa da imagem
   const getImageUrl = (filename: string) => {
-    return `http://localhost:3000/uploads/gallery/${filename}`;
+    return `http://localhost:3001/uploads/gallery/${filename}`;
   };
 
   return (

@@ -19,12 +19,12 @@ export interface CartTotal {
   subtotal: number;
   shipping: number;
   total: number;
+  totalPrice: number;
+  totalQuantity: number;
+  items: CartItem[];
 }
 
-export interface Cart {
-  items: CartItem[];
-  total: CartTotal;
-}
+export interface Cart extends CartTotal {}
 
 class CartService {
   async getCart(): Promise<Cart> {
@@ -41,7 +41,7 @@ class CartService {
     return this.calculateCart(response.data.items);
   }
 
-  async updateQuantity(cartItemId: number, quantity: number): Promise<Cart> {
+  async updateItemQuantity(cartItemId: number, quantity: number): Promise<Cart> {
     const response = await api.put<{ items: CartItem[] }>(`/cart/items/${cartItemId}`, {
       quantity
     });
@@ -64,14 +64,15 @@ class CartService {
     
     const shipping = subtotal > 50 ? 0 : 5;
     const total = subtotal + shipping;
+    const totalQuantity = items.reduce((sum, item) => sum + item.quantity, 0);
 
     return {
       items,
-      total: {
-        subtotal,
-        shipping,
-        total
-      }
+      subtotal,
+      shipping,
+      total,
+      totalPrice: total,
+      totalQuantity
     };
   }
 }

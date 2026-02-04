@@ -43,6 +43,8 @@ export interface GalleryImage {
   uploadedBy: string;
 }
 
+export type MerchandiseCategory = 'ROUPA' | 'CD' | 'VINIL' | 'POSTER' | 'ACESSORIO';
+
 export interface MerchItem {
   id: number;
   name: string;
@@ -50,7 +52,9 @@ export interface MerchItem {
   price: number;
   imageUrl?: string;
   stock: number;
+  category: MerchandiseCategory;
   isActive: boolean;
+  variants?: { size: string; stock: number }[];
   createdAt: string;
   updatedAt: string;
 }

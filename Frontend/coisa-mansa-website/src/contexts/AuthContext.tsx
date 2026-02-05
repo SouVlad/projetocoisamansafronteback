@@ -23,7 +23,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // Restaura o usuário imediatamente do localStorage
           try {
             const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
+            setUser(parsedUser?.user ?? parsedUser);
           } catch (e) {
             console.error('Erro ao parsear usuário do localStorage:', e);
           }

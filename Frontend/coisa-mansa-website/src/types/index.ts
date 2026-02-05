@@ -43,7 +43,7 @@ export interface GalleryImage {
   uploadedBy: string;
 }
 
-export type MerchandiseCategory = 'ROUPA' | 'CD' | 'VINIL' | 'POSTER' | 'ACESSORIO';
+export type MerchandiseCategory = 'ROUPA' | 'CD' | 'VINIL' | 'ALBUM' | 'POSTER' | 'ACESSORIO' | 'OUTRO';
 
 export interface MerchItem {
   id: number;

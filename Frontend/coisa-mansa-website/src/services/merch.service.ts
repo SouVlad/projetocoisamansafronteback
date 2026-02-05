@@ -4,7 +4,7 @@
  */
 
 import { api } from '@/utils/api';
-import { MerchItem } from '@/types';
+import { MerchItem, MerchandiseCategory } from '@/types';
 
 export interface CreateProductData {
   name: string;
@@ -12,6 +12,8 @@ export interface CreateProductData {
   price: number;
   imageUrl?: string;
   stock?: number;
+  category?: MerchandiseCategory;
+  variants?: { size: string; stock: number }[];
   available?: boolean;
 }
 
@@ -52,6 +54,8 @@ class MerchService {
     if (data.description) formData.append('description', data.description);
     formData.append('price', data.price.toString());
     formData.append('stock', (data.stock || 0).toString());
+    if (data.category) formData.append('category', data.category);
+    if (data.variants) formData.append('variants', JSON.stringify(data.variants));
     formData.append('available', (data.available !== false).toString());
     
     return api.upload<MerchItem>('/merchandise', formData);
@@ -71,6 +75,8 @@ class MerchService {
     if (data.description !== undefined) formData.append('description', data.description);
     if (data.price !== undefined) formData.append('price', data.price.toString());
     if (data.stock !== undefined) formData.append('stock', data.stock.toString());
+    if (data.category !== undefined) formData.append('category', data.category);
+    if (data.variants !== undefined) formData.append('variants', JSON.stringify(data.variants));
     if (data.available !== undefined) formData.append('available', data.available.toString());
     
     return api.upload<MerchItem>(`/merchandise/${id}`, formData, 'PUT');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Upload, Image as ImageIcon, X, Grid, List } from 'lucide-react';
+import { Edit, Trash2, Upload, Image as ImageIcon, X, Grid, List } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { galleryService, GalleryImage } from '@/services/gallery.service';
 import { albumService, Album } from '@/services/album.service';
@@ -64,7 +64,10 @@ export const AdminGalleryPage: React.FC = () => {
     try {
       if (editingImage) {
         // Atualizar imagem existente
-        await galleryService.update(editingImage.id, formData);
+        await galleryService.update(editingImage.id, {
+          ...formData,
+          albumId: formData.albumId ? parseInt(formData.albumId, 10) : undefined
+        });
         alert('Imagem atualizada com sucesso!');
       } else {
         // Upload nova imagem
@@ -96,7 +99,7 @@ export const AdminGalleryPage: React.FC = () => {
     setFormData({
       title: image.title,
       description: image.description || '',
-      albumId: ''
+      albumId: image.albumId ? image.albumId.toString() : ''
     });
     setShowUploadModal(true);
   };
@@ -136,7 +139,7 @@ export const AdminGalleryPage: React.FC = () => {
 
   // Construir URL completa da imagem
   const getImageUrl = (filename: string) => {
-    return `http://localhost:3001/uploads/gallery/${filename}`;
+    return `http://localhost:3000/uploads/gallery/${filename}`;
   };
 
   return (
@@ -411,28 +414,26 @@ export const AdminGalleryPage: React.FC = () => {
                 />
               </div>
 
-              {!editingImage && (
-                <div>
-                  <label className="block text-sm font-medium text-coisa-black mb-2">
-                    Álbum (Pasta)
-                  </label>
-                  <select
-                    value={formData.albumId}
-                    onChange={(e) => setFormData({ ...formData, albumId: e.target.value })}
-                    className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
-                  >
-                    <option value="">Sem álbum</option>
-                    {albums.map((album) => (
-                      <option key={album.id} value={album.id}>
-                        {album.name}
-                      </option>
-                    ))}
-                  </select>
-                  <p className="text-xs text-coisa-black/60 mt-1">
-                    Seleciona um álbum para organizar a imagem
-                  </p>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-coisa-black mb-2">
+                  Álbum (Pasta)
+                </label>
+                <select
+                  value={formData.albumId}
+                  onChange={(e) => setFormData({ ...formData, albumId: e.target.value })}
+                  className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
+                >
+                  <option value="">Sem álbum</option>
+                  {albums.map((album) => (
+                    <option key={album.id} value={album.id}>
+                      {album.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-coisa-black/60 mt-1">
+                  Seleciona um álbum para organizar a imagem
+                </p>
+              </div>
 
               <div className="flex items-center justify-end space-x-3 pt-4">
                 <button

@@ -2,6 +2,25 @@
 import prisma from "../prisma.js";
 import { sendEventReminder } from "../services/email.service.js";
 
+async function notifyUsersAboutEvent(event) {
+  try {
+    const users = await prisma.user.findMany({
+      where: { role: "USER" },
+      select: { id: true, username: true, email: true },
+    });
+
+    for (const user of users) {
+      try {
+        await sendEventReminder(user, event);
+      } catch (err) {
+        console.error(`❌ Erro ao enviar email para ${user.email}:`, err);
+      }
+    }
+  } catch (err) {
+    console.error("Erro ao buscar utilizadores para envio de emails:", err);
+  }
+}
+
 export async function listEvents(req, res) {
   try {
     const isAdmin = req.user?.role === "ADMIN" || req.user?.role === "OWNER";
@@ -55,6 +74,10 @@ export async function createEvent(req, res) {
       },
     });
     res.status(201).json(ev);
+
+    if (ev.isPublic) {
+      notifyUsersAboutEvent(ev);
+    }
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Erro ao criar evento." });
@@ -89,6 +112,10 @@ export async function updateEvent(req, res) {
 
     const ev = await prisma.event.update({ where: { id }, data });
     res.json(ev);
+
+    if (existingEvent.isPublic === false && ev.isPublic === true) {
+      notifyUsersAboutEvent(ev);
+    }
   } catch (err) {
     console.error(err);
     if (err?.code === "P2025") return res.status(404).json({ error: "Evento não encontrado" });

@@ -20,7 +20,7 @@ const navigation: NavItem[] = [
       { label: 'Galeria', href: '/galeria' }
     ]
   },
-  { label: 'Merch', href: '/merch' },
+  { label: 'Loja', href: '/merch' },
   { label: 'Contactos', href: '/contactos' },
 ];
 
@@ -71,8 +71,7 @@ export const Header: React.FC = () => {
                     onMouseEnter={() => setIsExploreOpen(true)}
                     onMouseLeave={() => setIsExploreOpen(false)}
                   >
-                    <Link
-                      to={item.href}
+                    <button
                       className={clsx(
                         'flex items-center space-x-1 px-3 py-2 text-sm font-medium transition-colors duration-200',
                         isActive(item.href)
@@ -82,7 +81,7 @@ export const Header: React.FC = () => {
                     >
                       <span>{item.label}</span>
                       <ChevronDown className="w-4 h-4" />
-                    </Link>
+                    </button>
                     
                     {/* Dropdown Menu */}
                     {isExploreOpen && (

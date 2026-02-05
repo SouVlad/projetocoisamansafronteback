@@ -49,19 +49,19 @@ export async function initializeEmailTransport() {
   return transporter;
 }
 
-export async function sendEmailReminder(user, concert) {
+export async function sendEmailReminder(user, event) {
   const transport = await initializeEmailTransport();
   
-  const formattedDate = new Date(concert.date || concert.startsAt).toLocaleString("pt-PT", {
+  const formattedDate = new Date(event.startsAt).toLocaleString("pt-PT", {
     dateStyle: "full",
     timeStyle: "short",
   });
 
-  const subject = `Lembrete: Concerto ${concert.title} em 3 dias`;
+  const subject = `Lembrete: Evento ${event.title} em 3 dias`;
 
   const textBody = `Olá ${user.username},
 
-Lembrete: o concerto "${concert.title}" será em ${formattedDate} no ${concert.location}.
+Lembrete: o evento "${event.title}" será em ${formattedDate} no ${event.location}.
 
 Até lá,
 Coisa Mansa`;
@@ -87,7 +87,7 @@ Coisa Mansa`;
     </div>
     <div class="content">
       <p>Olá <strong>${user.username}</strong>,</p>
-      <p>Lembrete: o concerto "<strong>${concert.title}</strong>" será em <strong>${formattedDate}</strong> no <strong>${concert.location}</strong>.</p>
+      <p>Lembrete: o evento "<strong>${event.title}</strong>" será em <strong>${formattedDate}</strong> no <strong>${event.location}</strong>.</p>
       <p>Até lá!</p>
     </div>
     <div class="footer">
@@ -343,6 +343,185 @@ Coisa Mansa`;
     return info;
   } catch (err) {
     console.error(`Erro ao enviar lembrete para ${user.email}:`, err?.message || err);
+    throw err;
+  }
+}
+
+/**
+ * Envia mensagem de contacto para coisamansanotif@gmail.com
+ */
+export async function sendContactEmail(contactData) {
+  const transport = await initializeEmailTransport();
+  const { name, email, subject, message } = contactData;
+  const notificationEmail = "coisamansanotif@gmail.com";
+
+  const textBody = `Nova mensagem de contacto de: ${name} (${email})
+
+Assunto: ${subject}
+
+Mensagem:
+${message}
+
+---
+Responder para: ${email}`;
+
+  const htmlBody = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { margin: 0; padding: 0; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; 
+      line-height: 1.6; 
+      color: #333; 
+      background-color: #ffffff;
+    }
+    .email-container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+    }
+    .header {
+      background-color: #FF6B35;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .header-icon {
+      display: inline-block;
+      margin-right: 10px;
+    }
+    .description {
+      padding: 20px;
+      background-color: #ffffff;
+      font-size: 14px;
+      color: #666;
+    }
+    .sender-box {
+      padding: 20px;
+      background-color: #f9f9f9;
+      border-left: 4px solid #FF6B35;
+    }
+    .sender-field {
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .sender-label {
+      font-weight: bold;
+      color: #333;
+      display: inline-block;
+      width: 80px;
+    }
+    .sender-value {
+      display: inline-block;
+      color: #555;
+    }
+    .sender-value a {
+      color: #FF6B35;
+      text-decoration: none;
+    }
+    .message-label {
+      padding: 20px 20px 10px 20px;
+      font-weight: bold;
+      color: #333;
+      font-size: 14px;
+    }
+    .message-box {
+      padding: 10px 20px 20px 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-top: none;
+      font-size: 14px;
+      color: #555;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      line-height: 1.5;
+    }
+    .reply-button {
+      text-align: center;
+      padding: 20px;
+      background-color: #ffffff;
+    }
+    .reply-button a {
+      display: inline-block;
+      background-color: #FF6B35;
+      color: white !important;
+      text-decoration: none;
+      padding: 12px 30px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .reply-button a:hover {
+      background-color: #E55A24;
+    }
+    .footer { 
+      text-align: center; 
+      padding: 20px;
+      color: #999; 
+      font-size: 12px;
+      background-color: #f9f9f9;
+      border-top: 1px solid #e0e0e0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <span class="header-icon">📧</span>Nova Mensagem de Contacto
+    </div>
+    
+    <div class="description">
+      Recebes uma nova mensagem através do formulário de contacto do site Coisa Mansa.
+    </div>
+
+    <div class="sender-box">
+      <div class="sender-field">
+        <span class="sender-label">Nome:</span>
+        <span class="sender-value">${name}</span>
+      </div>
+      <div class="sender-field">
+        <span class="sender-label">Email:</span>
+        <span class="sender-value"><a href="mailto:${email}">${email}</a></span>
+      </div>
+      <div class="sender-field">
+        <span class="sender-label">Assunto:</span>
+        <span class="sender-value">${subject}</span>
+      </div>
+    </div>
+
+    <div class="message-label">Mensagem:</div>
+    <div class="message-box">${message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+
+    <div class="reply-button">
+      <a href="mailto:${email}?subject=Re: ${encodeURIComponent(subject)}">Responder a ${name}</a>
+    </div>
+
+    <div class="footer">
+      Mensagem enviada através do formulário de contacto do site Coisa Mansa
+    </div>
+  </div>
+</body>
+</html>`;
+
+  const mailOptions = {
+    from: `"Coisa Mansa - Contacto" <${process.env.MAIL_USER}>`,
+    to: notificationEmail,
+    replyTo: email,
+    subject: `[Contacto] ${subject}`,
+    text: textBody,
+    html: htmlBody
+  };
+
+  try {
+    const info = await transport.sendMail(mailOptions);
+    console.log(`Email de contacto de ${email} enviado para ${notificationEmail} | messageId: ${info.messageId}`);
+    return info;
+  } catch (err) {
+    console.error(`Erro ao enviar email de contacto de ${email}:`, err?.message || err);
     throw err;
   }
 }

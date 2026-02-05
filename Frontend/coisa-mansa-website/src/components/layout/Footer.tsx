@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Instagram, Facebook, Youtube, Phone, Mail } from 'lucide-react';
+import { Instagram, Facebook, Youtube, Mail } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
@@ -107,12 +107,6 @@ export const Footer: React.FC = () => {
                   className="block text-coisa-gray hover:text-coisa-accent transition-colors duration-200"
                 >
                   Política de Cookies
-                </Link>
-                <Link
-                  to="/admin"
-                  className="block text-coisa-gray hover:text-coisa-accent transition-colors duration-200"
-                >
-                  Administração
                 </Link>
               </div>
             </div>

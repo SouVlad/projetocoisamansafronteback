@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Package, DollarSign, Archive, Eye, EyeOff } from 'lucide-react';
 import { AdminLayout } from '@/components/layout/AdminLayout';
 import { merchService } from '@/services/merch.service';
-import { MerchItem } from '@/types';
+import { MerchItem, MerchandiseCategory } from '@/types';
 
 export const AdminMerchPage: React.FC = () => {
+  const sizeOptions = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const [products, setProducts] = useState<MerchItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -16,8 +17,23 @@ export const AdminMerchPage: React.FC = () => {
     description: '',
     price: '',
     stock: '',
+    category: 'OUTRO' as MerchandiseCategory,
     isActive: true
   });
+  const [sizeStocks, setSizeStocks] = useState<Record<string, string>>({
+    XS: '',
+    S: '',
+    M: '',
+    L: '',
+    XL: '',
+    XXL: ''
+  });
+  const [sizeTooltip, setSizeTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    variants: { size: string; stock: number }[];
+  }>({ visible: false, x: 0, y: 0, variants: [] });
 
   // Carregar produtos
   useEffect(() => {
@@ -44,11 +60,26 @@ export const AdminMerchPage: React.FC = () => {
     e.preventDefault();
     
     try {
+      const variants = formData.category === 'ROUPA'
+        ? sizeOptions
+            .map(size => ({
+              size,
+              stock: parseInt(sizeStocks[size] || '0', 10) || 0
+            }))
+            .filter(v => v.stock > 0)
+        : undefined;
+
+      const totalVariantStock = formData.category === 'ROUPA'
+        ? sizeOptions.reduce((sum, size) => sum + (parseInt(sizeStocks[size] || '0', 10) || 0), 0)
+        : undefined;
+
       const productData = {
         name: formData.name,
         description: formData.description,
         price: parseFloat(formData.price),
-        stock: parseInt(formData.stock),
+        stock: formData.category === 'ROUPA' ? totalVariantStock : parseInt(formData.stock),
+        category: formData.category,
+        variants,
         available: formData.isActive
       };
 
@@ -60,6 +91,10 @@ export const AdminMerchPage: React.FC = () => {
         // Criar novo produto
         if (!formData.name || !formData.price) {
           alert('Nome e preço são obrigatórios');
+          return;
+        }
+        if (formData.category !== 'ROUPA' && !formData.stock) {
+          alert('Stock é obrigatório');
           return;
         }
         await merchService.create(selectedFile, productData);
@@ -81,8 +116,25 @@ export const AdminMerchPage: React.FC = () => {
       description: product.description || '',
       price: product.price.toString(),
       stock: product.stock.toString(),
+      category: product.category || 'OUTRO',
       isActive: product.isActive ?? true
     });
+    const nextSizeStocks: Record<string, string> = {
+      XS: '',
+      S: '',
+      M: '',
+      L: '',
+      XL: '',
+      XXL: ''
+    };
+    if (product.variants && product.variants.length > 0) {
+      product.variants.forEach(variant => {
+        if (nextSizeStocks[variant.size] !== undefined) {
+          nextSizeStocks[variant.size] = variant.stock.toString();
+        }
+      });
+    }
+    setSizeStocks(nextSizeStocks);
     // Carregar preview da imagem existente
     if (product.imageUrl) {
       setPreviewUrl(`http://localhost:3000${product.imageUrl}`);
@@ -128,7 +180,16 @@ export const AdminMerchPage: React.FC = () => {
       description: '',
       price: '',
       stock: '',
+      category: 'OUTRO',
       isActive: true
+    });
+    setSizeStocks({
+      XS: '',
+      S: '',
+      M: '',
+      L: '',
+      XL: '',
+      XXL: ''
     });
   };
 
@@ -138,6 +199,23 @@ export const AdminMerchPage: React.FC = () => {
       setSelectedFile(file);
       setPreviewUrl(URL.createObjectURL(file));
     }
+  };
+
+  const showSizeTooltip = (
+    event: React.MouseEvent<HTMLElement>,
+    variants: { size: string; stock: number }[]
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const tooltipWidth = 224; // w-56
+    const padding = 12;
+    const maxX = window.innerWidth - tooltipWidth - padding;
+    const x = Math.min(rect.left, maxX);
+    const y = rect.bottom + 8;
+    setSizeTooltip({ visible: true, x, y, variants });
+  };
+
+  const hideSizeTooltip = () => {
+    setSizeTooltip((prev) => ({ ...prev, visible: false }));
   };
 
   // Cálculos de estatísticas
@@ -151,7 +229,7 @@ export const AdminMerchPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-3xl font-bold text-coisa-black">Gestão de Merchandising</h2>
+            <h2 className="text-3xl font-bold text-coisa-black">Gestão dos produtos</h2>
             <p className="text-coisa-black/60 mt-1">
               Gere os produtos da banda
             </p>
@@ -213,7 +291,7 @@ export const AdminMerchPage: React.FC = () => {
               <p className="mt-4 text-coisa-black/60">A carregar produtos...</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-visible">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-coisa-gray/30">
@@ -255,15 +333,31 @@ export const AdminMerchPage: React.FC = () => {
                         <span className="font-semibold text-coisa-black">€{product.price.toFixed(2)}</span>
                       </td>
                       <td className="py-4 px-4">
-                        <span className={`font-medium ${
-                          product.stock === 0 
-                            ? 'text-red-500' 
-                            : product.stock < 10 
-                            ? 'text-orange-500' 
-                            : 'text-green-600'
-                        }`}>
-                          {product.stock} unidades
-                        </span>
+                        <div className="flex flex-col">
+                          <span className={`font-medium ${
+                            product.stock === 0 
+                              ? 'text-red-500' 
+                              : product.stock < 10 
+                              ? 'text-orange-500' 
+                              : 'text-green-600'
+                          }`}>
+                            {product.stock} unidades
+                          </span>
+
+                          {product.variants && product.variants.length > 0 ? (
+                            <span
+                              className="mt-2 inline-block text-xs text-coisa-black/60 underline cursor-default"
+                              onMouseEnter={(e) => showSizeTooltip(e, product.variants || [])}
+                              onMouseLeave={hideSizeTooltip}
+                            >
+                              Ver stock por tamanho
+                            </span>
+                          ) : product.category === 'ROUPA' ? (
+                            <div className="mt-2 text-xs text-coisa-black/50">
+                              Sem stock por tamanho
+                            </div>
+                          ) : null}
+                        </div>
                       </td>
                       <td className="py-4 px-4">
                         <button
@@ -369,22 +463,64 @@ export const AdminMerchPage: React.FC = () => {
                     className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
                     placeholder="19.99"
                   />
+
+                  <div>
+                    <label className="block text-sm font-medium text-coisa-black mb-2">
+                      Tipo de Item *
+                    </label>
+                    <select
+                      value={formData.category}
+                      onChange={(e) => setFormData({ ...formData, category: e.target.value as MerchandiseCategory })}
+                      className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
+                    >
+                      <option value="ROUPA">Roupa</option>
+                      <option value="CD">CD</option>
+                      <option value="VINIL">Vinil</option>
+                      <option value="ALBUM">Álbum</option>
+                      <option value="POSTER">Poster</option>
+                      <option value="ACESSORIO">Acessório</option>
+                      <option value="OUTRO">Outro</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-coisa-black mb-2">
-                    Stock *
-                  </label>
-                  <input
-                    type="number"
-                    required
-                    min="0"
-                    value={formData.stock}
-                    onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                    className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
-                    placeholder="50"
-                  />
-                </div>
+                {formData.category !== 'ROUPA' ? (
+                  <div>
+                    <label className="block text-sm font-medium text-coisa-black mb-2">
+                      Stock *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={formData.stock}
+                      onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                      className="w-full px-4 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
+                      placeholder="50"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-coisa-black mb-2">
+                      Stock por Tamanho (Roupa)
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {sizeOptions.map(size => (
+                        <div key={size}>
+                          <label className="block text-xs font-medium text-coisa-black/70 mb-1">{size}</label>
+                          <input
+                            type="number"
+                            min="0"
+                            value={sizeStocks[size]}
+                            onChange={(e) => setSizeStocks({ ...sizeStocks, [size]: e.target.value })}
+                            className="w-full px-3 py-2 border border-coisa-gray/30 rounded-lg focus:ring-2 focus:ring-coisa-accent focus:border-transparent"
+                            placeholder="0"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -438,6 +574,29 @@ export const AdminMerchPage: React.FC = () => {
               </div>
             </form>
           </div>
+        </div>
+      )}
+
+      {sizeTooltip.visible && (
+        <div
+          className="fixed z-50 w-56 rounded-lg bg-white border border-gray-200 shadow-lg p-3 text-xs text-coisa-black"
+          style={{ left: sizeTooltip.x, top: sizeTooltip.y }}
+          onMouseEnter={() => setSizeTooltip((prev) => ({ ...prev, visible: true }))}
+          onMouseLeave={hideSizeTooltip}
+        >
+          <p className="font-semibold mb-2">Stock por tamanho</p>
+          <ul className="space-y-1">
+            {[...sizeTooltip.variants]
+              .sort((a, b) => a.size.localeCompare(b.size))
+              .map((variant) => (
+                <li key={variant.size} className="flex items-center justify-between">
+                  <span>{variant.size}</span>
+                  <span className={variant.stock > 0 ? 'text-green-600' : 'text-red-500'}>
+                    {variant.stock}
+                  </span>
+                </li>
+              ))}
+          </ul>
         </div>
       )}
     </AdminLayout>

@@ -15,6 +15,7 @@ export interface GalleryImage {
   size: number;
   category?: string;
   year?: number;
+  albumId?: number;
   uploadedById: number;
   uploadedBy: {
     id: number;

@@ -1,4 +1,4 @@
-import api from '@/utils/api';
+import { api } from '@/utils/api';
 
 export interface CartItem {
   id: number;
@@ -29,7 +29,7 @@ export interface Cart extends CartTotal {}
 class CartService {
   async getCart(): Promise<Cart> {
     const response = await api.get<{ items: CartItem[] }>('/cart');
-    return this.calculateCart(response.data.items);
+    return this.calculateCart(response.items);
   }
 
   async addItem(merchandiseId: number, quantity: number = 1, size?: string): Promise<Cart> {
@@ -38,19 +38,19 @@ class CartService {
       quantity,
       size
     });
-    return this.calculateCart(response.data.items);
+    return this.calculateCart(response.items);
   }
 
   async updateItemQuantity(cartItemId: number, quantity: number): Promise<Cart> {
     const response = await api.put<{ items: CartItem[] }>(`/cart/items/${cartItemId}`, {
       quantity
     });
-    return this.calculateCart(response.data.items);
+    return this.calculateCart(response.items);
   }
 
   async removeItem(cartItemId: number): Promise<Cart> {
     const response = await api.delete<{ items: CartItem[] }>(`/cart/items/${cartItemId}`);
-    return this.calculateCart(response.data.items);
+    return this.calculateCart(response.items);
   }
 
   async clearCart(): Promise<void> {

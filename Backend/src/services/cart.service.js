@@ -33,12 +33,26 @@ export async function getCartById(cartId) {
   return cart;
 }
 
-export async function addItemToCart(userId, merchandiseId, quantity) {
+export async function addItemToCart(userId, merchandiseId, quantity, size) {
   if (!quantity || quantity <= 0) {
     throw new Error("Quantidade deve ser maior que 0.");
   }
 
   const merchandise = await getMerchandiseById(merchandiseId);
+
+  if (size) {
+    const variant = await prisma.merchandiseVariant.findUnique({
+      where: { merchandiseId_size: { merchandiseId, size } },
+    });
+
+    if (!variant) {
+      throw new Error("Tamanho inválido para este produto.");
+    }
+
+    if (variant.stock < quantity) {
+      throw new Error("Stock insuficiente para este tamanho.");
+    }
+  }
 
   if (merchandise.stock < quantity) {
     throw new Error("Stock insuficiente para esta quantidade.");
@@ -47,7 +61,7 @@ export async function addItemToCart(userId, merchandiseId, quantity) {
   const cart = await getOrCreateCart(userId);
 
   const existingItem = await prisma.cartItem.findFirst({
-    where: { cartId: cart.id, merchandiseId },
+    where: { cartId: cart.id, merchandiseId, size: size || null },
   });
 
   let cartItem;
@@ -69,12 +83,13 @@ export async function addItemToCart(userId, merchandiseId, quantity) {
         merchandiseId,
         quantity,
         unitPrice: merchandise.price,
+        size: size || null,
       },
       include: { merchandise: true },
     });
   }
 
-  return cartItem;
+  return getCartById(cart.id);
 }
 
 export async function removeItemFromCart(cartItemId) {
@@ -89,6 +104,8 @@ export async function removeItemFromCart(cartItemId) {
   await prisma.cartItem.delete({
     where: { id: cartItemId },
   });
+
+  return getCartById(cartItem.cartId);
 }
 
 export async function updateCartItemQuantity(cartItemId, quantity) {
@@ -115,7 +132,7 @@ export async function updateCartItemQuantity(cartItemId, quantity) {
     include: { merchandise: true },
   });
 
-  return updated;
+  return getCartById(updated.cartId);
 }
 
 export async function clearCart(cartId) {

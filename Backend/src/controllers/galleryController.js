@@ -13,13 +13,10 @@ const __dirname = path.dirname(__filename);
  */
 export async function listGalleryImages(req, res) {
   try {
-    const { category, year } = req.query;
+    const { year } = req.query;
     
     // Construir filtro dinâmico
     const where = {};
-    if (category) {
-      where.category = category;
-    }
     if (year) {
       where.year = parseInt(year);
     }
@@ -92,7 +89,7 @@ export async function uploadGalleryImage(req, res) {
       return res.status(400).json({ error: "Nenhum arquivo foi enviado." });
     }
 
-    const { title, description, category, year, albumId } = req.body;
+    const { title, description, year, albumId } = req.body;
 
     if (!title) {
       // Se não houver título, remover o arquivo
@@ -105,7 +102,6 @@ export async function uploadGalleryImage(req, res) {
       data: {
         title,
         description: description || null,
-        category: category || null,
         year: year ? parseInt(year) : null,
         albumId: albumId ? parseInt(albumId) : null,
         filename: req.file.filename,
@@ -145,7 +141,7 @@ export async function uploadGalleryImage(req, res) {
 export async function updateGalleryImage(req, res) {
   try {
     const id = Number(req.params.id);
-    const { title, description, category, year } = req.body;
+    const { title, description, year } = req.body;
 
     const existingImage = await prisma.galleryImage.findUnique({
       where: { id },
@@ -160,7 +156,6 @@ export async function updateGalleryImage(req, res) {
       data: {
         title: title || existingImage.title,
         description: description !== undefined ? description : existingImage.description,
-        category: category !== undefined ? category : existingImage.category,
         year: year !== undefined ? (year ? parseInt(year) : null) : existingImage.year,
       },
       include: {
@@ -218,19 +213,6 @@ export async function deleteGalleryImage(req, res) {
  */
 export async function getGalleryCategories(req, res) {
   try {
-    // Buscar todas categorias únicas
-    const categories = await prisma.galleryImage.findMany({
-      where: {
-        category: {
-          not: null
-        }
-      },
-      select: {
-        category: true,
-      },
-      distinct: ['category'],
-    });
-
     // Buscar todos anos únicos
     const years = await prisma.galleryImage.findMany({
       where: {
@@ -248,7 +230,7 @@ export async function getGalleryCategories(req, res) {
     });
 
     res.json({
-      categories: categories.map(c => c.category).filter(Boolean),
+      categories: [],
       years: years.map(y => y.year).filter(Boolean),
     });
   } catch (err) {

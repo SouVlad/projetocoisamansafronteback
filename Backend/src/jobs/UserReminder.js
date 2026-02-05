@@ -31,41 +31,38 @@ function minutesAfter(date, mins) {
   return d;
 }
 
-async function markReminderSent(concertId) {
-  await prisma.concert.update({
-    where: { id: concertId },
-    data: { reminderSent: true },
-  });
-}
+// Guardar IDs de eventos que já foram notificados nesta sessão
+const notifiedEventIds = new Set();
 
-async function fetchConcertsToNotify() {
+async function fetchEventsToNotify() {
   const now = new Date();
   const target = datePlusDays(now, SCHEDULE_OFFSET_DAYS);
   const from = minutesBefore(target, WINDOW_MINUTES);
   const to = minutesAfter(target, WINDOW_MINUTES);
 
-  // console.log("DEBUG: fetchConcertsToNotify interval:", from.toISOString(), "->", to.toISOString());
+  // console.log("DEBUG: fetchEventsToNotify interval:", from.toISOString(), "->", to.toISOString());
 
-  const concerts = await prisma.concert.findMany({
+  const events = await prisma.event.findMany({
     where: {
-      reminderSent: false,
-      date: {
+      startsAt: {
         gte: from,
         lte: to,
       },
     },
   });
-  return concerts;
+  
+  // Filtrar eventos que já foram notificados nesta sessão
+  return events.filter(event => !notifiedEventIds.has(event.id));
 }
 
 async function workerIteration() {
   try {
-    console.log("DEBUG: workerIteration started — searching for concerts...");
-    const concerts = await fetchConcertsToNotify();
-    // console.log("DEBUG: concerts found:", concerts.length);
+    console.log("DEBUG: workerIteration started — searching for events...");
+    const events = await fetchEventsToNotify();
+    // console.log("DEBUG: events found:", events.length);
     
-    if (!concerts.length) {
-      // console.log("No concerts to notify now.");
+    if (!events.length) {
+      // console.log("No events to notify now.");
       return;
     }
 
@@ -77,19 +74,20 @@ async function workerIteration() {
       return;
     }
 
-    console.log(`Found ${concerts.length} concerts. Sending to ${users.length} users...`);
+    console.log(`Found ${events.length} events. Sending to ${users.length} users...`);
 
-    for (const concert of concerts) {
+    for (const event of events) {
       for (const user of users) {
         try {
-          await sendEmailReminder(user, concert);
+          await sendEmailReminder(user, event);
           await new Promise((r) => setTimeout(r, 300));
         } catch (err) {
-          console.error(`Failed to send to ${user.email} for concert ${concert.id}. Continuing...`);
+          console.error(`Failed to send to ${user.email} for event ${event.id}. Continuing...`);
         }
       }
-      await markReminderSent(concert.id);
-      console.log(`Concert ${concert.id} marked as reminderSent=true`);
+      // Marcar como notificado nesta sessão
+      notifiedEventIds.add(event.id);
+      console.log(`Event ${event.id} marked as notified in this session`);
     }
   } catch (err) {
     console.error("Error in workerIteration:", err);
@@ -100,7 +98,7 @@ export async function startJobs({ runImmediateInDev = true } = {}) {
   await initializeEmailTransport();
 
   cron.schedule("0 9 * * *", () => {
-    console.log("Cron fired at 09:00 — checking concerts...");
+    console.log("Cron fired at 09:00 — checking events...");
     workerIteration().catch((err) => console.error("Error in scheduled worker:", err));
   });
 
@@ -126,10 +124,10 @@ export async function sendTestEmail() {
     return;
   }
 
-  const concert = {
-    title: "Test Concert",
+  const event = {
+    title: "Test Event",
     location: "Main Auditorium",
-    date: new Date(),
+    startsAt: new Date(),
   };
 
   try {
@@ -139,7 +137,7 @@ export async function sendTestEmail() {
       return;
     }
 
-    await sendEmailReminder(user, concert);
+    await sendEmailReminder(user, event);
     console.log("Test email sent successfully.");
   } catch (err) {
     console.error("Error sending test email:", err);

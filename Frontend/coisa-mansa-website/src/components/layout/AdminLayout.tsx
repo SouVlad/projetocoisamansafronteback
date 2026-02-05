@@ -8,7 +8,6 @@ import {
   Package, 
   Newspaper,
   Users,
-  Settings,
   ArrowLeft,
   Menu,
   X
@@ -25,7 +24,7 @@ const adminNavigation = [
   { label: 'Agenda', href: '/admin/agenda', icon: Calendar },
   { label: 'Galeria', href: '/admin/galeria', icon: Camera },
   { label: 'Álbuns', href: '/admin/albuns', icon: FolderOpen },
-  { label: 'Merch', href: '/admin/merch', icon: Package },
+  { label: 'Loja', href: '/admin/merch', icon: Package },
   { label: 'Notícias', href: '/admin/noticias', icon: Newspaper },
   { label: 'Utilizadores', href: '/admin/utilizadores', icon: Users },
 ];

@@ -104,9 +104,9 @@ class AuthService {
    * Atualiza perfil do usuário
    */
   async updateProfile(data: Partial<User>): Promise<User> {
-    const user = await api.put<User>('/auth/profile', data);
-    localStorage.setItem('user', JSON.stringify(user));
-    return user;
+    const response = await api.put<{ message: string; user: User }>('/auth/profile', data);
+    localStorage.setItem('user', JSON.stringify(response.user));
+    return response.user;
   }
 
   /**

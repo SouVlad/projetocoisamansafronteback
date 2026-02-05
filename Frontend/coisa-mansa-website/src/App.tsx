@@ -8,7 +8,7 @@ import { HomePage } from '@/pages/public/HomePage';
 import { AboutPage } from '@/pages/public/AboutPage';
 import { AgendaPage } from '@/pages/public/AgendaPage';
 import { GalleryPage } from '@/pages/public/GalleryPage';
-import { MerchPage } from '@/pages/public/MerchPage';
+import MerchPage from '@/pages/public/MerchPage';
 import { ContactPage } from '@/pages/public/ContactPage';
 import { LoginPage } from '@/pages/public/LoginPage';
 import { RegisterPage } from '@/pages/public/RegisterPage';

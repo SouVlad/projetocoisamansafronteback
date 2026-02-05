@@ -7,6 +7,7 @@ import cartRoutes from "./cartRoutes.js";
 import galleryRoutes from "./gallery.routes.js";
 import albumRoutes from "./album.routes.js";
 import newsRoutes from "./news.routes.js";
+import contactRoutes from "./contact.routes.js";
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use("/cart", cartRoutes);
 router.use("/gallery", galleryRoutes);
 router.use("/albums", albumRoutes);
 router.use("/news", newsRoutes);
+router.use("/contact", contactRoutes);
 
 export default router;

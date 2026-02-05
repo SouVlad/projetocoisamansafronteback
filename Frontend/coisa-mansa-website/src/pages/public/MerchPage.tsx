@@ -1,5 +1,5 @@
 ﻿import { useState, useEffect } from 'react';
-import { ShoppingCart, Filter, X, Plus, Minus, Heart } from 'lucide-react';
+import { ShoppingCart, Filter, X, Plus, Minus } from 'lucide-react';
 import { cartService, CartTotal } from '@/services/cart.service';
 import type { MerchItem, MerchandiseCategory } from '@/types';
 import { Layout } from '@/components/layout/Layout';
@@ -370,13 +370,6 @@ export default function MerchPage() {
                       <ShoppingCart className="w-16 h-16" />
                     </div>
                   )}
-
-                  <button
-                    className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/90 border border-gray-200 flex items-center justify-center text-gray-400 hover:text-[#D9534F] transition-colors"
-                    aria-label="Favorito"
-                  >
-                    <Heart className="w-4 h-4" />
-                  </button>
                   
                   {/* Stock Badge */}
                   {item.stock === 0 && (

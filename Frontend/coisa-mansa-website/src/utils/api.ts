@@ -49,7 +49,7 @@ class ApiService {
         }));
         
         const error: ApiError = {
-          message: errorData.message || 'Erro desconhecido',
+          message: errorData.message || errorData.error || 'Erro desconhecido',
           status: response.status,
           errors: errorData.errors,
         };

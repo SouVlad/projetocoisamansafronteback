@@ -97,6 +97,17 @@ export async function uploadGalleryImage(req, res) {
       return res.status(400).json({ error: "O título é obrigatório." });
     }
 
+    // Verificar se já existe uma imagem com este título
+    const existingImage = await prisma.galleryImage.findFirst({
+      where: { title }
+    });
+
+    if (existingImage) {
+      // Remover o arquivo que foi enviado
+      fs.unlinkSync(req.file.path);
+      return res.status(409).json({ error: "Já existe uma imagem com este título." });
+    }
+
     // Criar registro na base de dados
     const image = await prisma.galleryImage.create({
       data: {
@@ -151,10 +162,25 @@ export async function updateGalleryImage(req, res) {
       return res.status(404).json({ error: "Imagem não encontrada" });
     }
 
+    // Verificar se o novo título já existe (e não pertence a esta imagem)
+    const newTitle = title || existingImage.title;
+    if (title && title !== existingImage.title) {
+      const duplicateTitle = await prisma.galleryImage.findFirst({
+        where: {
+          title: newTitle,
+          id: { not: id }
+        }
+      });
+      
+      if (duplicateTitle) {
+        return res.status(409).json({ error: "Já existe uma imagem com este título." });
+      }
+    }
+
     const updatedImage = await prisma.galleryImage.update({
       where: { id },
       data: {
-        title: title || existingImage.title,
+        title: newTitle,
         description: description !== undefined ? description : existingImage.description,
         year: year !== undefined ? (year ? parseInt(year) : null) : existingImage.year,
       },

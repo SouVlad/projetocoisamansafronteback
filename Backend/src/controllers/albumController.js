@@ -69,6 +69,15 @@ export async function createAlbum(req, res) {
       return res.status(400).json({ error: "Nome do álbum é obrigatório" });
     }
 
+    // Verificar se já existe um álbum com este nome
+    const existingAlbum = await prisma.album.findFirst({
+      where: { name }
+    });
+
+    if (existingAlbum) {
+      return res.status(409).json({ error: "Já existe um álbum com este nome." });
+    }
+
     const album = await prisma.album.create({
       data: {
         name,
@@ -91,6 +100,30 @@ export async function updateAlbum(req, res) {
   try {
     const id = Number(req.params.id);
     const { name, description, isPublic, order, coverImage } = req.body;
+
+    // Verificar se o novo nome já existe (e não pertence a este álbum)
+    if (name) {
+      const existingAlbum = await prisma.album.findUnique({
+        where: { id }
+      });
+
+      if (!existingAlbum) {
+        return res.status(404).json({ error: "Álbum não encontrado" });
+      }
+
+      if (name !== existingAlbum.name) {
+        const duplicateName = await prisma.album.findFirst({
+          where: {
+            name: name,
+            id: { not: id }
+          }
+        });
+
+        if (duplicateName) {
+          return res.status(409).json({ error: "Já existe um álbum com este nome." });
+        }
+      }
+    }
 
     const updateData = {};
     if (name !== undefined) updateData.name = name;

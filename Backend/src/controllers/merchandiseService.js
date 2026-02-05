@@ -36,6 +36,20 @@ export const findAll = async () => {
     });
 };
 
+export const findById = async (id) => {
+    return prisma.merchandise.findUnique({
+        where: { id: parseInt(id, 10) },
+        include: { MerchandiseVariant: true }
+    });
+};
+
+export const findByName = async (name) => {
+    return prisma.merchandise.findFirst({
+        where: { name },
+        include: { MerchandiseVariant: true }
+    });
+};
+
 export const update = async (id, data) => {
     const merchandiseId = parseInt(id, 10);
     const { variants, category, ...rest } = data;

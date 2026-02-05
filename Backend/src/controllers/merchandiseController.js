@@ -12,6 +12,17 @@ export const createMerchandise = async (req, res) => {
     try {
         const { name, description, price, stock, available, category, variants } = req.body;
 
+        if (!name) {
+            return res.status(400).json({ message: "Nome do produto é obrigatório" });
+        }
+
+        // Verificar se já existe um produto com este nome
+        const existingMerchandise = await merchandiseService.findByName(name);
+        if (existingMerchandise) {
+            res.status(409).json({ message: "Já existe um produto com este nome." });
+            return;
+        }
+
         let parsedVariants = [];
         if (variants) {
             parsedVariants = typeof variants === 'string' ? JSON.parse(variants) : variants;
@@ -53,6 +64,22 @@ export const getAllMerchandise = async (req, res) => {
 export const updateMerchandise = async (req, res) => {
     try {
         const { name, description, price, stock, available, category, variants } = req.body;
+        const merchandiseId = parseInt(req.params.id);
+
+        // Verificar se o produto existe
+        const existingMerchandise = await merchandiseService.findById(merchandiseId);
+        if (!existingMerchandise) {
+            return res.status(404).json({ message: "Produto não encontrado" });
+        }
+
+        // Verificar se o novo nome já existe (e não pertence a este produto)
+        if (name && name !== existingMerchandise.name) {
+            const duplicateMerchandise = await merchandiseService.findByName(name);
+            if (duplicateMerchandise) {
+                res.status(409).json({ message: "Já existe um produto com este nome." });
+                return;
+            }
+        }
 
         let parsedVariants = undefined;
         if (variants !== undefined) {
@@ -75,7 +102,7 @@ export const updateMerchandise = async (req, res) => {
         }
         
         const merchandise = await merchandiseService.update(
-            parseInt(req.params.id), 
+            merchandiseId, 
             updateData
         );
         

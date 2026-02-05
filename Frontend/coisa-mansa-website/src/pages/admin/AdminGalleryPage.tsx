@@ -88,9 +88,10 @@ export const AdminGalleryPage: React.FC = () => {
       
       await loadImages();
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar imagem:', error);
-      alert('Erro ao salvar imagem');
+      const errorMessage = error?.message || 'Erro desconhecido';
+      alert(errorMessage);
     }
   };
 
@@ -113,9 +114,10 @@ export const AdminGalleryPage: React.FC = () => {
       await galleryService.delete(id);
       alert('Imagem eliminada com sucesso!');
       await loadImages();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao eliminar imagem:', error);
-      alert('Erro ao eliminar imagem');
+      const errorMessage = error?.message || 'Erro desconhecido';
+      alert(errorMessage);
     }
   };
 

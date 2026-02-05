@@ -103,9 +103,10 @@ export const AdminMerchPage: React.FC = () => {
       
       await loadProducts();
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar produto:', error);
-      alert('Erro ao salvar produto');
+      const errorMessage = error?.message || 'Erro ao salvar produto';
+      alert(errorMessage);
     }
   };
 
@@ -151,9 +152,10 @@ export const AdminMerchPage: React.FC = () => {
       await merchService.delete(id);
       alert('Produto eliminado com sucesso!');
       await loadProducts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao eliminar produto:', error);
-      alert('Erro ao eliminar produto');
+      const errorMessage = error?.message || 'Erro ao eliminar produto';
+      alert(errorMessage);
     }
   };
 
@@ -164,9 +166,10 @@ export const AdminMerchPage: React.FC = () => {
 
       await merchService.update(id, null, { available: !product.isActive });
       await loadProducts();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar status:', error);
-      alert('Erro ao atualizar status do produto');
+      const errorMessage = error?.message || 'Erro ao atualizar status do produto';
+      alert(errorMessage);
     }
   };
 

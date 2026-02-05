@@ -59,9 +59,10 @@ export const AdminNewsPage: React.FC = () => {
       
       await loadArticles();
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar artigo:', error);
-      alert('Erro ao salvar artigo');
+      const errorMessage = error?.message || 'Erro ao salvar artigo';
+      alert(errorMessage);
     }
   };
 
@@ -85,9 +86,10 @@ export const AdminNewsPage: React.FC = () => {
       await newsService.delete(id);
       alert('Artigo eliminado com sucesso!');
       await loadArticles();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao eliminar artigo:', error);
-      alert('Erro ao eliminar artigo');
+      const errorMessage = error?.message || 'Erro ao eliminar artigo';
+      alert(errorMessage);
     }
   };
 
@@ -95,9 +97,10 @@ export const AdminNewsPage: React.FC = () => {
     try {
       await newsService.togglePublish(id);
       await loadArticles();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar status:', error);
-      alert('Erro ao atualizar status da publicação');
+      const errorMessage = error?.message || 'Erro ao atualizar status da publicação';
+      alert(errorMessage);
     }
   };
 

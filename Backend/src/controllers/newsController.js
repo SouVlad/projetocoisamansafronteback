@@ -97,6 +97,15 @@ export async function createArticle(req, res) {
       });
     }
 
+    // Verificar se já existe um artigo com este título
+    const existingArticle = await prisma.newsArticle.findFirst({
+      where: { title }
+    });
+
+    if (existingArticle) {
+      return res.status(409).json({ error: "Já existe um artigo com este título." });
+    }
+
     const article = await prisma.newsArticle.create({
       data: {
         title,
@@ -140,6 +149,20 @@ export async function updateArticle(req, res) {
 
     if (!existingArticle) {
       return res.status(404).json({ error: "Artigo não encontrado" });
+    }
+
+    // Verificar se o novo título já existe (e não pertence a este artigo)
+    if (title && title !== existingArticle.title) {
+      const duplicateArticle = await prisma.newsArticle.findFirst({
+        where: {
+          title: title,
+          id: { not: id }
+        }
+      });
+
+      if (duplicateArticle) {
+        return res.status(409).json({ error: "Já existe um artigo com este título." });
+      }
     }
 
     // Se está a ser publicado pela primeira vez, definir publishedAt

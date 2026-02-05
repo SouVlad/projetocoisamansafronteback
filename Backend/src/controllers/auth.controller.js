@@ -131,9 +131,23 @@ export async function updateProfile(req, res) {
     });
   } catch (err) {
     console.error("Erro ao atualizar perfil:", err);
-    // Service layer has multiple validation messages that are safe to return
-    if (err.message.includes("Password") || err.message.includes("Username") || err.message.includes("Email") || err.message.includes("atualizar")) {
-        return res.status(400).json({ error: err.message });
+    // Username ou Email já existe
+    if (err.message.includes("Username já existe")) {
+      return res.status(409).json({ error: "Nome de utilizador já utilizado." });
+    }
+    if (err.message.includes("Email já existe")) {
+      return res.status(409).json({ error: "Email já utilizado." });
+    }
+    // Validação de password
+    if (err.message.includes("Password")) {
+      return res.status(400).json({ error: err.message });
+    }
+    // Validação de username ou email
+    if (err.message.includes("Username") || err.message.includes("Email")) {
+      return res.status(400).json({ error: err.message });
+    }
+    if (err.message.includes("Nenhum campo para atualizar")) {
+      return res.status(400).json({ error: err.message });
     }
     return res.status(500).json({ error: "Ocorreu um erro ao atualizar o perfil." });
   }

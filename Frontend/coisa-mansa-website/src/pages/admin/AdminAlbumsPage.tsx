@@ -46,9 +46,10 @@ export const AdminAlbumsPage: React.FC = () => {
       
       await loadAlbums();
       closeModal();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao salvar álbum:', error);
-      alert('Erro ao salvar álbum');
+      const errorMessage = error?.message || 'Erro desconhecido';
+      alert(errorMessage);
     }
   };
 
@@ -74,7 +75,8 @@ export const AdminAlbumsPage: React.FC = () => {
       await loadAlbums();
     } catch (error: any) {
       console.error('Erro ao eliminar álbum:', error);
-      alert(error.response?.data?.error || 'Erro ao eliminar álbum');
+      const errorMessage = error?.message || 'Erro ao eliminar álbum';
+      alert(errorMessage);
     }
   };
 
@@ -82,9 +84,10 @@ export const AdminAlbumsPage: React.FC = () => {
     try {
       await albumService.update(album.id, { isPublic: !album.isPublic });
       await loadAlbums();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao atualizar álbum:', error);
-      alert('Erro ao atualizar álbum');
+      const errorMessage = error?.message || 'Erro ao atualizar álbum';
+      alert(errorMessage);
     }
   };
 
